@@ -66,8 +66,8 @@ final class ClubCoreTests: XCTestCase {
     }
 
     func testKeyMismatchIsDetected() throws {
-        let otherKey = try Keys.rsaPrivateKey(Data((try JSONSerialization.jsonObject(
-            with: fixtureData("test_service_account.json")) as! [String: Any])["private_key"] as! String).utf8)
+        let sa = try JSONSerialization.jsonObject(with: fixtureData("test_service_account.json")) as! [String: Any]
+        let otherKey = try Keys.rsaPrivateKey(Data((sa["private_key"] as! String).utf8))
         XCTAssertThrowsError(try PassSigner(certificate: CertificateInfo(data: fixtureData("test_pass_cert.pem")),
                                             key: otherKey, wwdr: CertificateInfo(data: fixtureData("test_wwdr.pem"))))
     }
