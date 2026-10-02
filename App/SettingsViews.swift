@@ -79,6 +79,32 @@ struct AssetRow: View {
     }
 }
 
+/// A text field with its name on the left (so filled-in fields still say what they are).
+struct LabeledField: View {
+    let label: String
+    @Binding var text: String
+    var prompt: String = ""
+    var keyboard: UIKeyboardType = .default
+    var plain = false          // no autocapitalisation / autocorrect (ids, emails, URLs)
+    var secure = false
+
+    var body: some View {
+        LabeledContent(label) {
+            Group {
+                if secure {
+                    SecureField(prompt, text: $text)
+                } else {
+                    TextField(prompt, text: $text)
+                        .keyboardType(keyboard)
+                        .textInputAutocapitalization(plain ? .never : .sentences)
+                        .autocorrectionDisabled(plain)
+                }
+            }
+            .multilineTextAlignment(.trailing)
+        }
+    }
+}
+
 // MARK: - Design
 struct DesignView: View {
     @EnvironmentObject var store: Store
@@ -91,11 +117,11 @@ struct DesignView: View {
         NavigationStack {
             Form {
                 Section("Card") {
-                    TextField("Club name", text: $store.config.clubName)
-                    TextField("Card title", text: $store.config.cardTitle)
-                    TextField("Season (e.g. 2026)", text: $store.config.season)
-                    TextField("Expiration date YYYY-MM-DD (optional)", text: $store.config.expirationDate)
-                        .keyboardType(.numbersAndPunctuation)
+                    LabeledField(label: "Club", text: $store.config.clubName, prompt: "Club name")
+                    LabeledField(label: "Card title", text: $store.config.cardTitle, prompt: "Membership Card")
+                    LabeledField(label: "Season", text: $store.config.season, prompt: "2026")
+                    LabeledField(label: "Expires", text: $store.config.expirationDate, prompt: "YYYY-MM-DD (optional)",
+                                 keyboard: .numbersAndPunctuation, plain: true)
                 }
                 Section {
                     Toggle("Take colours from background picture", isOn: $store.config.bgAutoColor)
@@ -202,15 +228,15 @@ struct WalletsView: View {
                         Text("Full background (blurred)").tag("eventTicket")
                         Text("Classic (plain colour)").tag("generic")
                     }
-                    TextField("Pass Type ID", text: $store.config.applePassTypeId).autocorrectionDisabled().textInputAutocapitalization(.never)
-                    TextField("Team ID", text: $store.config.appleTeamId).autocorrectionDisabled().textInputAutocapitalization(.characters)
+                    LabeledField(label: "Pass Type ID", text: $store.config.applePassTypeId, prompt: "pass.com.club.member", plain: true)
+                    LabeledField(label: "Team ID", text: $store.config.appleTeamId, prompt: "10 characters", plain: true)
                     Picker("Certificate", selection: $store.config.appleCertMode) {
                         Text(".cer + .pem key").tag("pem")
                         Text(".p12 file").tag("p12")
                     }
                     if store.config.appleCertMode == "p12" {
                         AssetRow(asset: .appleP12) { target = .asset(.appleP12) }
-                        SecureField(".p12 password", text: $store.config.appleP12Password)
+                        LabeledField(label: ".p12 password", text: $store.config.appleP12Password, secure: true)
                     } else {
                         AssetRow(asset: .appleCert) { target = .asset(.appleCert) }
                         AssetRow(asset: .appleKey) { target = .asset(.appleKey) }
@@ -223,14 +249,11 @@ struct WalletsView: View {
                 }
                 Section {
                     Toggle("Make Google Wallet passes", isOn: $store.config.googleEnabled)
-                    TextField("Issuer ID", text: $store.config.googleIssuerId).keyboardType(.numberPad)
+                    LabeledField(label: "Issuer ID", text: $store.config.googleIssuerId, prompt: "3388…", keyboard: .numberPad, plain: true)
                     AssetRow(asset: .googleServiceAccount) { target = .asset(.googleServiceAccount) }
-                    TextField("Pass class name", text: $store.config.googleClassSuffix).autocorrectionDisabled()
-                        .textInputAutocapitalization(.never)
-                    TextField("Logo URL (public https, optional)", text: $store.config.googleLogoUrl)
-                        .keyboardType(.URL).textInputAutocapitalization(.never).autocorrectionDisabled()
-                    TextField("Banner image URL (public https, optional)", text: $store.config.googleHeroUrl)
-                        .keyboardType(.URL).textInputAutocapitalization(.never).autocorrectionDisabled()
+                    LabeledField(label: "Pass class", text: $store.config.googleClassSuffix, prompt: "membership", plain: true)
+                    LabeledField(label: "Logo URL", text: $store.config.googleLogoUrl, prompt: "https://… (optional)", keyboard: .URL, plain: true)
+                    LabeledField(label: "Banner URL", text: $store.config.googleHeroUrl, prompt: "https://… (optional)", keyboard: .URL, plain: true)
                     Button("Find my Issuer ID") { store.findIssuer() }
                     Button("Test connection") { store.testGoogle() }
                 } header: { Text("Google Wallet") } footer: {
@@ -251,15 +274,17 @@ struct EmailView: View {
         NavigationStack {
             Form {
                 Section {
-                    TextField("SMTP server", text: $store.config.smtpHost).textInputAutocapitalization(.never).autocorrectionDisabled()
-                    TextField("Port", value: $store.config.smtpPort, format: .number.grouping(.never)).keyboardType(.numberPad)
+                    LabeledField(label: "Server", text: $store.config.smtpHost, prompt: "smtp.gmail.com", keyboard: .URL, plain: true)
+                    LabeledContent("Port") {
+                        TextField("465", value: $store.config.smtpPort, format: .number.grouping(.never))
+                            .keyboardType(.numberPad).multilineTextAlignment(.trailing)
+                    }
                     Picker("Security", selection: $store.config.smtpSecurity) {
                         Text("SSL/TLS").tag("SSL")
                         Text("None").tag("None")
                     }
-                    TextField("Username", text: $store.config.smtpUser).textInputAutocapitalization(.never)
-                        .autocorrectionDisabled().keyboardType(.emailAddress)
-                    SecureField("Password (Gmail: App password)", text: $store.config.smtpPassword)
+                    LabeledField(label: "Username", text: $store.config.smtpUser, prompt: "you@gmail.com", keyboard: .emailAddress, plain: true)
+                    LabeledField(label: "Password", text: $store.config.smtpPassword, prompt: "Gmail App password", secure: true)
                     Button("Use Gmail settings") {
                         store.config.smtpHost = "smtp.gmail.com"; store.config.smtpPort = 465; store.config.smtpSecurity = "SSL"
                         if store.config.fromEmail.isEmpty { store.config.fromEmail = store.config.smtpUser }
@@ -268,14 +293,12 @@ struct EmailView: View {
                     Text("Use SSL/TLS on port 465 (Gmail: smtp.gmail.com). STARTTLS on port 587 isn't supported.")
                 }
                 Section("Sender") {
-                    TextField("From name", text: $store.config.fromName)
-                    TextField("From email", text: $store.config.fromEmail).textInputAutocapitalization(.never)
-                        .autocorrectionDisabled().keyboardType(.emailAddress)
-                    TextField("Reply-to (optional)", text: $store.config.replyTo).textInputAutocapitalization(.never)
-                        .autocorrectionDisabled().keyboardType(.emailAddress)
+                    LabeledField(label: "From name", text: $store.config.fromName, prompt: "Club name")
+                    LabeledField(label: "From email", text: $store.config.fromEmail, prompt: "club@gmail.com", keyboard: .emailAddress, plain: true)
+                    LabeledField(label: "Reply-to", text: $store.config.replyTo, prompt: "optional", keyboard: .emailAddress, plain: true)
                 }
                 Section {
-                    TextField("Subject", text: $store.config.emailSubject)
+                    LabeledField(label: "Subject", text: $store.config.emailSubject)
                     TextEditor(text: $store.config.emailBody).frame(minHeight: 220)
                 } header: { Text("Message") } footer: {
                     Text("Placeholders: {name} {surname} {full_name} {reg} {email} {club} {season} {pass_filename}")

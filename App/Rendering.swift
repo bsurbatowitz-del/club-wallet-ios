@@ -56,6 +56,16 @@ enum CardRenderer {
         (s as NSString).draw(at: p, withAttributes: [.font: f, .foregroundColor: color])
     }
 
+    /// Dark fade from the left edge so white text stays readable on light pictures.
+    static func scrim(_ ctx: CGContext, width: CGFloat, height: CGFloat, strength: CGFloat, reach: CGFloat) {
+        let colors = [UIColor.black.withAlphaComponent(strength).cgColor, UIColor.black.withAlphaComponent(0).cgColor]
+        guard let g = CGGradient(colorsSpace: CGColorSpaceCreateDeviceRGB(), colors: colors as CFArray, locations: [0, 1]) else { return }
+        ctx.saveGState()
+        ctx.clip(to: CGRect(x: 0, y: 0, width: width, height: height))
+        ctx.drawLinearGradient(g, start: .zero, end: CGPoint(x: width * reach, y: 0), options: [])
+        ctx.restoreGState()
+    }
+
     static func jpeg(_ img: UIImage, maxSide: CGFloat, quality: CGFloat = 0.88) -> Data? {
         let s = min(1, maxSide / max(img.size.width, img.size.height))
         let size = CGSize(width: floor(img.size.width * s), height: floor(img.size.height * s))
@@ -141,6 +151,7 @@ enum CardRenderer {
                 cover(bg, CGSize(width: W, height: H)).draw(at: .zero)
                 bgc.withAlphaComponent(CGFloat(max(0, min(100, c.bgOverlay))) / 100).setFill()
                 ctx.fill(CGRect(x: 0, y: 0, width: W, height: H))
+                scrim(ctx.cgContext, width: W, height: H, strength: 0.5, reach: 0.75)
             } else {
                 bgc.setFill(); ctx.fill(CGRect(x: 0, y: 0, width: W, height: H))
             }
@@ -254,6 +265,7 @@ enum CardRenderer {
                         bgc.setFill()
                     }
                     ctx.fill(CGRect(origin: .zero, size: size))
+                    if background != nil { scrim(ctx.cgContext, width: size.width, height: size.height, strength: 0.5, reach: 0.6) }
                     if let p = photo {
                         let ps = floor(size.height * 0.80)
                         let bx = size.width - ps - 14 * mult, by = (size.height - ps) / 2
