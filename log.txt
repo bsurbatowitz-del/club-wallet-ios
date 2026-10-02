@@ -1,0 +1,14 @@
+2026-10-02 22:48:23.898 Df ClubWallet[7319:6c40] [com.apple.BoardServices:XPCErrors] [C:1] Alloc com.apple.frontboard.systemappservices
+2026-10-02 22:48:24.028 Df ClubWallet[7319:6bf8] [com.apple.BoardServices:XPCErrors] [C:2] Alloc com.apple.backboard.hid-services.xpc
+2026-10-02 22:48:49.048 Df ClubWallet[8604:77e8] [com.apple.BoardServices:XPCErrors] [C:1] Alloc com.apple.frontboard.systemappservices
+2026-10-02 22:48:49.148 Df ClubWallet[8604:77dd] [com.apple.BoardServices:XPCErrors] [C:2] Alloc com.apple.backboard.hid-services.xpc
+2026-10-02 22:48:50.763 E  ClubWallet[8604:77ec] (libCoreFSCache.dylib) Errors found! Invalidating cache...
+2026-10-02 22:48:51.124 E  ClubWallet[8604:77ec] (libCoreFSCache.dylib) Errors found! Invalidating cache...
+2026-10-02 22:49:08.449 Df ClubWallet[9301:8005] [com.apple.BoardServices:XPCErrors] [C:1] Alloc com.apple.frontboard.systemappservices
+2026-10-02 22:49:12.001 Df ClubWallet[9301:7ff0] [com.apple.BoardServices:XPCErrors] [C:2] Alloc com.apple.backboard.hid-services.xpc
+2026-10-02 22:49:22.073 Df ClubWallet[9998:86a6] [com.apple.BoardServices:XPCErrors] [C:1] Alloc com.apple.frontboard.systemappservices
+2026-10-02 22:49:22.164 Df ClubWallet[9998:868c] [com.apple.BoardServices:XPCErrors] [C:2] Alloc com.apple.backboard.hid-services.xpc
+2026-10-02 22:49:34.203 Df ClubWallet[10696:8d39] [com.apple.BoardServices:XPCErrors] [C:1] Alloc com.apple.frontboard.systemappservices
+2026-10-02 22:49:34.310 Df ClubWallet[10696:8d27] [com.apple.BoardServices:XPCErrors] [C:2] Alloc com.apple.backboard.hid-services.xpc
+2026-10-02 22:49:46.076 Df ClubWallet[11815:9770] [com.apple.BoardServices:XPCErrors] [C:1] Alloc com.apple.frontboard.systemappservices
+2026-10-02 22:49:46.159 Df ClubWallet[11815:975e] [com.apple.BoardServices:XPCErrors] [C:2] Alloc com.apple.backboard.hid-services.xpc
