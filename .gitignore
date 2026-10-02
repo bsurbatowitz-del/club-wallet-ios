@@ -1,0 +1,6 @@
+.build/
+*.xcodeproj/
+DerivedData/
+.swiftpm/
+*.xcarchive
+.DS_Store
