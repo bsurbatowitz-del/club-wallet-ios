@@ -1,4 +1,4 @@
-// swift-tools-version:5.9
+// swift-tools-version:6.0
 // ClubCore: the platform-independent part of Club Wallet (pass signing, zip, spreadsheets,
 // Google Wallet, email). It is used by the iPhone app and tested on macOS with `swift test`.
 import PackageDescription
@@ -17,5 +17,6 @@ let package = Package(
             path: "Tests/ClubCoreTests",
             resources: [.copy("Fixtures")]
         ),
-    ]
+    ],
+    swiftLanguageModes: [.v5]
 )
