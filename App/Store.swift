@@ -83,6 +83,7 @@ final class Store: ObservableObject {
         }
         membersFileName = UserDefaults.standard.string(forKey: "membersFileName") ?? ""
         loadMembersFromAsset()
+        if Demo.isOn { Demo.install(into: self) }
     }
 
     // MARK: persistence

@@ -14,11 +14,12 @@ struct MembersView: View {
     @State private var importing = false
     @State private var askSend = false
     @State private var sendList: [Member] = []
+    @State private var path: [Member] = []
 
     var selectedMembers: [Member] { store.members.filter { selection.contains($0.id) } }
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $path) {
             Group {
                 if store.members.isEmpty {
                     ContentUnavailableView {
@@ -86,6 +87,7 @@ struct MembersView: View {
                     catch { store.show(error, title: "Import failed") }
                 }
             }
+            .task { openDemoMember() }
             .confirmationDialog("Email membership cards", isPresented: $askSend, titleVisibility: .visible) {
                 let notYet = sendList.filter { store.sentDate($0) == nil }
                 if !notYet.isEmpty && notYet.count < sendList.count {
@@ -99,6 +101,10 @@ struct MembersView: View {
                 Text("Cards are made and sent from \(store.fromAddress(store.config)).")
             }
         }
+    }
+
+    func openDemoMember() {
+        if Demo.openFirstMember, path.isEmpty, let m = store.members.first { path = [m] }
     }
 
     func prepareSend(_ list: [Member]) {

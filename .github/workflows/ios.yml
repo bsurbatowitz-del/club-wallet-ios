@@ -71,6 +71,71 @@ jobs:
           name: build-log
           path: build.log
 
+  screenshots:
+    name: Run in iPhone simulator (screenshots)
+    needs: build
+    runs-on: macos-26
+    timeout-minutes: 45
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+      - name: Use newest Xcode
+        run: |
+          XC=$(ls -d /Applications/Xcode*.app | grep -v -i beta | sort -V | tail -1)
+          sudo xcode-select -s "$XC"
+      - name: Generate Xcode project
+        run: |
+          brew list xcodegen >/dev/null 2>&1 || brew install xcodegen
+          xcodegen generate
+      - name: Build, launch and screenshot
+        run: |
+          set -e
+          UDID=$(xcrun simctl list devices available -j | python3 -c "
+          import json, sys
+          d = json.load(sys.stdin)['devices']
+          c = [x for k, v in d.items() if 'iOS' in k for x in v if x['name'].startswith('iPhone') and 'Pro' in x['name'] and 'Max' not in x['name']]
+          c = c or [x for k, v in d.items() if 'iOS' in k for x in v if x['name'].startswith('iPhone')]
+          print(c[-1]['udid'])")
+          echo "Simulator: $UDID"
+          xcodebuild build -project ClubWallet.xcodeproj -scheme ClubWallet -destination "id=$UDID" \
+            -derivedDataPath dd CODE_SIGNING_ALLOWED=NO -quiet 2>&1 | tail -20
+          APP=$(ls -d dd/Build/Products/Debug-iphonesimulator/*.app | head -1)
+          xcrun simctl boot "$UDID" || true
+          xcrun simctl bootstatus "$UDID" -b
+          xcrun simctl ui "$UDID" appearance light || true
+          xcrun simctl status_bar "$UDID" override --time 9:41 --batteryLevel 100 --cellularBars 4 || true
+          xcrun simctl install "$UDID" "$APP"
+          mkdir -p shots
+          shoot() {
+            name=$1; shift
+            xcrun simctl terminate "$UDID" "$BUNDLE_ID" 2>/dev/null || true
+            xcrun simctl launch "$UDID" "$BUNDLE_ID" -demo "$@" > /dev/null
+            sleep 9
+            if xcrun simctl spawn "$UDID" launchctl list | grep -q "$BUNDLE_ID"; then
+              xcrun simctl io "$UDID" screenshot "shots/$name.png" > /dev/null
+            else
+              echo "::warning title=Simulator::$name – app is not running (crashed?)"
+            fi
+          }
+          shoot 1-members -tab 0
+          shoot 2-member -tab 0 -screen member
+          shoot 3-design -tab 1
+          shoot 4-wallets -tab 2
+          shoot 5-email -tab 3
+          shoot 6-settings -tab 4
+          xcrun simctl spawn "$UDID" log show --last 3m --predicate 'process == "ClubWallet"' --style compact 2>/dev/null \
+            | grep -iE "fatal|crash|error" | head -20 > shots/log.txt || true
+          sips -Z 1000 shots/*.png > /dev/null
+          ls -la shots
+          echo "::notice title=Screenshots::$(ls shots | tr '\n' ' ')"
+      - name: Publish screenshots to branch ci-screenshots
+        run: |
+          cd shots
+          git init -q && git checkout -q -b ci-screenshots
+          git add . && git -c user.name=ci -c user.email=ci@localhost commit -qm "screenshots for $GITHUB_SHA"
+          git push -qf "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}" ci-screenshots
+
   testflight:
     name: Upload to TestFlight
     needs: [core-tests, build]

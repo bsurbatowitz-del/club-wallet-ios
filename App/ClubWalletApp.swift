@@ -18,14 +18,15 @@ struct ClubWalletApp: App {
 struct ContentView: View {
     @EnvironmentObject var store: Store
     @State private var transferPassword = ""
+    @State private var tab = Demo.startTab
 
     var body: some View {
-        TabView {
-            MembersView().tabItem { Label("Members", systemImage: "person.3") }
-            DesignView().tabItem { Label("Design", systemImage: "paintpalette") }
-            WalletsView().tabItem { Label("Wallets", systemImage: "wallet.pass") }
-            EmailView().tabItem { Label("Email", systemImage: "envelope") }
-            SettingsView().tabItem { Label("Settings", systemImage: "gearshape") }
+        TabView(selection: $tab) {
+            MembersView().tabItem { Label("Members", systemImage: "person.3") }.tag(0)
+            DesignView().tabItem { Label("Design", systemImage: "paintpalette") }.tag(1)
+            WalletsView().tabItem { Label("Wallets", systemImage: "wallet.pass") }.tag(2)
+            EmailView().tabItem { Label("Email", systemImage: "envelope") }.tag(3)
+            SettingsView().tabItem { Label("Settings", systemImage: "gearshape") }.tag(4)
         }
         .alert(item: $store.alert) { a in
             Alert(title: Text(a.title), message: Text(a.message), dismissButton: .default(Text("OK")))
