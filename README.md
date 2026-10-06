@@ -14,7 +14,12 @@ and you install it from the TestFlight app.
 push to GitHub ─▶ GitHub Actions (macOS): tests + build ─▶ signed & uploaded to App Store Connect ─▶ TestFlight app on your iPhone
 ```
 
-### One-time setup (about 20 minutes)
+### One-time setup
+
+**Easiest:** on Ubuntu run `club-wallet-cards-apple-setup` (from Club Wallet Cards 1.4). After you create
+an App Store Connect API key in the browser, it registers the App ID, sets this repository's secrets and
+variables, starts the build and adds you as a TestFlight tester. The only other browser step is
+creating the app record (step 2). The manual steps are below.
 
 You need the paid Apple Developer account (the same one used for Wallet passes).
 
