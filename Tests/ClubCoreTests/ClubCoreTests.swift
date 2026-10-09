@@ -167,9 +167,19 @@ final class ClubCoreTests: XCTestCase {
         XCTAssertNil(c.bloodFields(for: ms[0]).rh)
         XCTAssertEqual(c.bloodHidden["1"], ["rh"])
         let pj = String(decoding: try AppleWallet.passJSON(member: ms[0], config: c, qrText: "q"), as: UTF8.self)
-        XCTAssertTrue(pj.contains("🩸 BLOOD TYPE")); XCTAssertFalse(pj.contains("\"RH\""))
+        XCTAssertTrue(pj.contains("\"label\" : \"🩸\"")); XCTAssertFalse(pj.contains("\"RH\""))
+        XCTAssertTrue(pj.contains("PKTextAlignmentCenter"))
         c.setBlood("rh", shown: true, for: ms[0])
         XCTAssertNil(c.bloodHidden["1"])
+        // store card: Reg. No. right under the member name, at most 4 fields under the banner
+        let sc = try JSONSerialization.jsonObject(with: AppleWallet.passJSON(member: ms[0], config: c, qrText: "q")) as! [String: Any]
+        let body = sc["storeCard"] as! [String: Any]
+        let aux = (body["auxiliaryFields"] as! [[String: Any]]).map { $0["key"] as! String }
+        XCTAssertEqual(aux, ["reg", "blood", "rh"])
+        XCTAssertEqual((body["primaryFields"] as! [Any]).count, 0)
+        XCTAssertEqual(((body["secondaryFields"] as! [[String: Any]])[0]["key"] as! String), "member")
+        let noBlood = try JSONSerialization.jsonObject(with: AppleWallet.passJSON(member: Member(reg: "9", name: "A", surname: "B", email: "a@b.c"), config: c, qrText: "q")) as! [String: Any]
+        XCTAssertEqual(((noBlood["storeCard"] as! [String: Any])["auxiliaryFields"] as! [[String: Any]]).map { $0["key"] as! String }, ["reg", "email"])
         c.bloodEnabled = false
         XCTAssertFalse(String(decoding: try AppleWallet.passJSON(member: ms[0], config: c, qrText: "q"), as: UTF8.self).contains("🩸"))
         // round trip with the Ubuntu key names

@@ -36,10 +36,11 @@ public enum AppleWallet {
         let header: [[String: Any]] = c.season.isEmpty ? [] : [field("season", "SEASON", c.season)]
         var body: [String: Any]
         if layout == "storeCard" {
+            // banner stays clear for the picture + photo; Reg. No. sits right under the member name
             body = ["headerFields": header,
-                    "primaryFields": [field("reg", "REG. NO.", m.reg)],
+                    "primaryFields": [[String: Any]](),
                     "secondaryFields": [field("member", "MEMBER", m.fullName)],
-                    "auxiliaryFields": [field("email", "EMAIL", m.email)]]
+                    "auxiliaryFields": [field("reg", "REG. NO.", m.reg)]]
         } else {
             var secondary = [field("reg", "REG. NO.", m.reg)]
             if layout == "generic" { secondary.append(field("card", "CARD", c.cardTitle)) }
@@ -57,11 +58,17 @@ public enum AppleWallet {
         ]
         let blood = c.bloodFields(for: m)
         var aux = (body["auxiliaryFields"] as? [[String: Any]]) ?? []
+        func centered(_ f: [String: Any]) -> [String: Any] { f.merging(["textAlignment": "PKTextAlignmentCenter"]) { $1 } }
         if let bt = blood.blood {
-            aux.append(field("blood", "🩸 BLOOD TYPE", bt)); back.append(field("b_blood", "🩸 Blood type", bt))
+            aux.append(centered(field("blood", "🩸", bt))); back.append(field("b_blood", "🩸 Blood type", bt))
         }
         if let rh = blood.rh {
-            aux.append(field("rh", "RH", rh)); back.append(field("b_rh", "Rh", rh))
+            aux.append(centered(field("rh", "RH", rh))); back.append(field("b_rh", "Rh", rh))
+        }
+        if layout == "storeCard" {
+            // Apple shows at most 4 secondary + auxiliary fields on store cards; email goes there only if there's room
+            let used = 1 + aux.count
+            if used < 4 { aux.insert(field("email", "EMAIL", m.email), at: 1) }
         }
         body["auxiliaryFields"] = aux
         body["backFields"] = back
