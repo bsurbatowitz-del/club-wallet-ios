@@ -66,6 +66,32 @@ enum CardRenderer {
         ctx.restoreGState()
     }
 
+    /// Average brightness (0…1) of the left part of a picture, where the text goes.
+    static func brightness(_ img: UIImage, leftFraction: CGFloat = 0.65) -> CGFloat {
+        let n = 24
+        guard let cg = cover(img, CGSize(width: n, height: n)).cgImage else { return 0.5 }
+        var px = [UInt8](repeating: 0, count: n * n * 4)
+        let ctx = CGContext(data: &px, width: n, height: n, bitsPerComponent: 8, bytesPerRow: n * 4,
+                            space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)
+        ctx?.draw(cg, in: CGRect(x: 0, y: 0, width: n, height: n))
+        var sum: CGFloat = 0, count: CGFloat = 0
+        for y in 0..<n { for x in 0..<Int(CGFloat(n) * leftFraction) {
+            let i = (y * n + x) * 4
+            sum += (0.2126 * CGFloat(px[i]) + 0.7152 * CGFloat(px[i + 1]) + 0.0722 * CGFloat(px[i + 2])) / 255
+            count += 1
+        } }
+        return count > 0 ? sum / count : 0.5
+    }
+
+    /// How much dark shading text on this picture needs: none for dark pictures, a little for light ones.
+    static func scrimStrength(_ img: UIImage, tint: UIColor, tintAlpha: CGFloat) -> CGFloat {
+        var r: CGFloat = 0, g: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
+        tint.getRed(&r, green: &g, blue: &b, alpha: &a)
+        let tintLum = 0.2126 * r + 0.7152 * g + 0.0722 * b
+        let lum = brightness(img) * (1 - tintAlpha) + tintLum * tintAlpha
+        return max(0, min(0.45, (lum - 0.42) * 1.1))
+    }
+
     static func jpeg(_ img: UIImage, maxSide: CGFloat, quality: CGFloat = 0.88) -> Data? {
         let s = min(1, maxSide / max(img.size.width, img.size.height))
         let size = CGSize(width: floor(img.size.width * s), height: floor(img.size.height * s))
@@ -151,7 +177,9 @@ enum CardRenderer {
                 cover(bg, CGSize(width: W, height: H)).draw(at: .zero)
                 bgc.withAlphaComponent(CGFloat(max(0, min(100, c.bgOverlay))) / 100).setFill()
                 ctx.fill(CGRect(x: 0, y: 0, width: W, height: H))
-                scrim(ctx.cgContext, width: W, height: H, strength: 0.5, reach: 0.75)
+                let alpha = CGFloat(max(0, min(100, c.bgOverlay))) / 100
+                let strength = scrimStrength(bg, tint: bgc, tintAlpha: alpha)
+                if strength > 0 { scrim(ctx.cgContext, width: W, height: H, strength: strength, reach: 0.7) }
             } else {
                 bgc.setFill(); ctx.fill(CGRect(x: 0, y: 0, width: W, height: H))
             }
@@ -265,7 +293,10 @@ enum CardRenderer {
                         bgc.setFill()
                     }
                     ctx.fill(CGRect(origin: .zero, size: size))
-                    if background != nil { scrim(ctx.cgContext, width: size.width, height: size.height, strength: 0.5, reach: 0.6) }
+                    if let bg = background {
+                        let strength = scrimStrength(bg, tint: bgc, tintAlpha: CGFloat(max(0, min(100, c.bgOverlay))) / 100)
+                        if strength > 0 { scrim(ctx.cgContext, width: size.width, height: size.height, strength: strength, reach: 0.55) }
+                    }
                     if let p = photo {
                         let ps = floor(size.height * 0.80)
                         let bx = size.width - ps - 14 * mult, by = (size.height - ps) / 2

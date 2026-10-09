@@ -124,6 +124,8 @@ jobs:
           shoot 4-wallets -tab 2
           shoot 5-email -tab 3
           shoot 6-settings -tab 4
+          DATA=$(xcrun simctl get_app_container "$UDID" "$BUNDLE_ID" data 2>/dev/null || true)
+          [ -n "$DATA" ] && cp "$DATA"/Documents/demo/*.png shots/ 2>/dev/null || true
           xcrun simctl spawn "$UDID" log show --last 3m --predicate 'process == "ClubWallet"' --style compact 2>/dev/null \
             | grep -iE "fatal|crash|error" | head -20 > shots/log.txt || true
           sips -Z 1000 shots/*.png > /dev/null

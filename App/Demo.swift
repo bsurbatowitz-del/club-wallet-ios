@@ -46,5 +46,19 @@ enum Demo {
         if let m = store.members.first { store.setPhoto(m, data: photo) }
         store.sent[store.sentKey(store.members[1])] = "2026-10-01 18:30"
         store.alert = nil
+        // rendered pictures for CI to inspect (Documents/demo)
+        let out = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("demo")
+        try? FileManager.default.createDirectory(at: out, withIntermediateDirectories: true)
+        let cfg = store.effectiveConfig()
+        if let m = store.members.first {
+            let bgImg = store.image(.background), ph = store.photo(m)
+            for overlay in [0, 20, 35] {
+                var c2 = cfg; c2.bgOverlay = overlay
+                let card = CardRenderer.renderCard(member: m, config: c2, qrText: c2.qrText(for: m), photo: ph, logo: nil, background: bgImg)
+                try? card.pngData()?.write(to: out.appendingPathComponent("card-overlay\(overlay).png"))
+                let imgs = CardRenderer.appleImages(config: c2, layout: "storeCard", photo: ph, logo: nil, background: bgImg)
+                try? imgs["strip@2x.png"]?.write(to: out.appendingPathComponent("strip-overlay\(overlay).png"))
+            }
+        }
     }
 }

@@ -139,10 +139,24 @@ final class Store: ObservableObject {
         revision += 1
     }
 
+    /// Logo / background from the photo library or Files: scaled down (big phone photos make everything slow).
+    func setPicture(_ a: Asset, data: Data) throws {
+        guard let img = UIImage(data: data) else { throw SimpleError("That file is not a picture (or the format isn't supported).") }
+        if a == .logo {
+            let s = min(1, 1024 / max(img.size.width, img.size.height))
+            let size = CGSize(width: floor(img.size.width * s), height: floor(img.size.height * s))
+            let png = CardRenderer.renderer(size, opaque: false).image { _ in img.draw(in: CGRect(origin: .zero, size: size)) }.pngData()
+            try setAsset(a, data: png ?? data, ext: "png")
+        } else {
+            try setAsset(a, data: CardRenderer.jpeg(img, maxSide: 2400, quality: 0.9) ?? data, ext: "jpg")
+        }
+        addLog("\(a.title) updated")
+    }
+
     func importAsset(_ a: Asset, from url: URL) {
         do {
             let data = try Store.read(url)
-            if a == .logo || a == .background, UIImage(data: data) == nil { throw SimpleError("That file is not a picture.") }
+            if a == .logo || a == .background { try setPicture(a, data: data); return }
             try setAsset(a, data: data, ext: url.pathExtension)
             if a == .members { importMembers(data: data, fileName: url.lastPathComponent) }
             if a == .appleCert || a == .appleP12 || a == .appleKey || a == .appleWWDR { autofillApple(quiet: true) }

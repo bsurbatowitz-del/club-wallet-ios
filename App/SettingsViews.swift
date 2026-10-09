@@ -36,12 +36,17 @@ enum ImportTarget: Identifiable {
 struct FileImporter: ViewModifier {
     @EnvironmentObject var store: Store
     @Binding var target: ImportTarget?
+    /// iOS closes the picker (clearing `target`) *before* it delivers the file, so remember what was asked for.
+    @State private var pending: ImportTarget?
 
     func body(content: Content) -> some View {
         content.fileImporter(isPresented: Binding(get: { target != nil }, set: { if !$0 { target = nil } }),
-                             allowedContentTypes: target?.types ?? [.data],
-                             allowsMultipleSelection: target?.multiple ?? false) { result in
-            guard let t = target, case .success(let urls) = result, !urls.isEmpty else { return }
+                             allowedContentTypes: (target ?? pending)?.types ?? [.data],
+                             allowsMultipleSelection: (target ?? pending)?.multiple ?? false) { result in
+            let t = pending
+            pending = nil
+            if case .failure(let e) = result { store.show(e, title: "Import failed"); return }
+            guard let t, case .success(let urls) = result, !urls.isEmpty else { return }
             switch t {
             case .asset(let a): store.importAsset(a, from: urls[0])
             case .photos: store.importPhotos(urls)
@@ -50,6 +55,7 @@ struct FileImporter: ViewModifier {
                 do { store.openTransfer(try Store.read(urls[0])) } catch { store.show(error, title: "Import failed") }
             }
         }
+        .onChange(of: target?.id) { _, _ in if let t = target { pending = t } }
     }
 }
 
@@ -109,9 +115,12 @@ struct LabeledField: View {
 struct DesignView: View {
     @EnvironmentObject var store: Store
     @State private var target: ImportTarget?
-    @State private var logoItem: PhotosPickerItem?
-    @State private var bgItem: PhotosPickerItem?
+    @State private var libraryItem: PhotosPickerItem?
+    @State private var libraryAsset: Asset?
+    @State private var showLibrary = false
     @State private var preview: UIImage?
+    @State private var walletPreview: UIImage?
+    @State private var loadingPicture = false
 
     var body: some View {
         NavigationStack {
@@ -134,10 +143,11 @@ struct DesignView: View {
                     }
                 }
                 Section {
-                    pictureRow("Logo", .logo, $logoItem)
-                    pictureRow("Background picture", .background, $bgItem)
+                    pictureRow("Logo", .logo)
+                    pictureRow("Background picture", .background)
+                    if loadingPicture { HStack { ProgressView(); Text("Loading picture…") } }
                     VStack(alignment: .leading) {
-                        Text("Colour over picture: \(store.config.bgOverlay)%")
+                        Text("Colour tint over picture: \(store.config.bgOverlay)%  (0 = picture as it is)")
                         Slider(value: Binding(get: { Double(store.config.bgOverlay) },
                                               set: { store.config.bgOverlay = Int($0) }), in: 0...90, step: 5)
                     }
@@ -159,24 +169,50 @@ struct DesignView: View {
                 } header: { Text("QR code content") } footer: {
                     Text("Placeholders: {reg} {name} {surname} {full_name} {email} {club} {season}")
                 }
-                Section("Preview") {
+                Section {
                     if let p = preview {
                         Image(uiImage: p).resizable().scaledToFit().clipShape(RoundedRectangle(cornerRadius: 10))
                     }
+                    if let w = walletPreview {
+                        Text(store.config.appleLayout == "eventTicket" ? "Apple Wallet background (iOS blurs it)" : "Apple Wallet banner")
+                            .font(.footnote).foregroundStyle(.secondary)
+                        Image(uiImage: w).resizable().scaledToFit().clipShape(RoundedRectangle(cornerRadius: 8))
+                            .frame(maxHeight: store.config.appleLayout == "eventTicket" ? 220 : 140)
+                    } else if store.hasAsset(.background) && store.config.appleLayout == "generic" {
+                        Text("The Apple Wallet layout is Classic (plain colour) – choose Banner on the Wallets tab to show the picture in Wallet.")
+                            .font(.footnote).foregroundStyle(.orange)
+                    }
                     Button("Refresh preview") { render() }
-                }
+                } header: { Text("Preview") }
             }
             .navigationTitle("Card design")
             .fileImporter(target: $target)
             .task { render() }
             .onChange(of: store.revision) { render() }
-            .onChange(of: logoItem) { _, i in load(i, into: .logo) { logoItem = nil } }
-            .onChange(of: bgItem) { _, i in load(i, into: .background) { bgItem = nil } }
+            .onChange(of: store.config.bgOverlay) { render() }
+            .onChange(of: store.config.bgAutoColor) { render() }
+            .onChange(of: store.config.appleLayout) { render() }
+            .photosPicker(isPresented: $showLibrary, selection: $libraryItem, matching: .images)
+            .onChange(of: libraryItem) { _, item in
+                guard let item, let asset = libraryAsset else { return }
+                loadingPicture = true
+                Task {
+                    do {
+                        if let d = try await item.loadTransferable(type: Data.self) {
+                            try store.setPicture(asset, data: d)
+                        } else {
+                            store.show("Picture", "That photo could not be loaded.")
+                        }
+                    } catch { store.show(error, title: "Picture") }
+                    loadingPicture = false
+                    libraryItem = nil
+                }
+            }
         }
     }
 
     @ViewBuilder
-    func pictureRow(_ title: String, _ asset: Asset, _ item: Binding<PhotosPickerItem?>) -> some View {
+    func pictureRow(_ title: String, _ asset: Asset) -> some View {
         HStack {
             if let img = store.image(asset) {
                 Image(uiImage: img).resizable().scaledToFit().frame(width: 44, height: 32)
@@ -184,7 +220,7 @@ struct DesignView: View {
             Text(title)
             Spacer()
             Menu(store.hasAsset(asset) ? "Change" : "Choose") {
-                PhotosPicker(selection: item, matching: .images) { Label("Photo library", systemImage: "photo") }
+                Button { libraryAsset = asset; showLibrary = true } label: { Label("Photo library", systemImage: "photo") }
                 Button { target = .asset(asset) } label: { Label("Files", systemImage: "folder") }
                 if store.hasAsset(asset) {
                     Button(role: .destructive) { store.removeAsset(asset) } label: { Label("Remove", systemImage: "trash") }
@@ -194,22 +230,14 @@ struct DesignView: View {
         .id("\(asset.rawValue)-\(store.revision)")
     }
 
-    func load(_ item: PhotosPickerItem?, into asset: Asset, done: @escaping () -> Void) {
-        guard let item else { return }
-        Task {
-            if let d = try? await item.loadTransferable(type: Data.self), let img = UIImage(data: d),
-               let png = img.pngData() {
-                try? store.setAsset(asset, data: png, ext: "png")
-            }
-            done()
-        }
-    }
-
     func render() {
         let cfg = store.effectiveConfig()
         let m = store.members.first ?? Member(reg: "123", name: "Ana", surname: "Example", email: "ana@example.com")
-        preview = CardRenderer.renderCard(member: m, config: cfg, qrText: cfg.qrText(for: m), photo: store.photo(m),
-                                          logo: store.image(.logo), background: store.image(.background))
+        let bg = store.image(.background), ph = store.photo(m), logo = store.image(.logo)
+        preview = CardRenderer.renderCard(member: m, config: cfg, qrText: cfg.qrText(for: m), photo: ph,
+                                          logo: logo, background: bg)
+        let imgs = CardRenderer.appleImages(config: cfg, layout: cfg.appleLayout, photo: ph, logo: logo, background: bg)
+        walletPreview = (imgs["strip@2x.png"] ?? imgs["background@2x.png"]).flatMap { UIImage(data: $0) }
     }
 }
 
