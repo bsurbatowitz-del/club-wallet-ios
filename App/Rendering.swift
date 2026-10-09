@@ -176,12 +176,12 @@ enum CardRenderer {
             if let bg = background {
                 cover(bg, CGSize(width: W, height: H)).draw(at: .zero)
                 bgc.withAlphaComponent(CGFloat(max(0, min(100, c.bgOverlay))) / 100).setFill()
-                ctx.fill(CGRect(x: 0, y: 0, width: W, height: H))
+                ctx.fill(CGRect(x: 0, y: 0, width: W, height: H), blendMode: .normal)
                 let alpha = CGFloat(max(0, min(100, c.bgOverlay))) / 100
                 let strength = scrimStrength(bg, tint: bgc, tintAlpha: alpha)
                 if strength > 0 { scrim(ctx.cgContext, width: W, height: H, strength: strength, reach: 0.7) }
             } else {
-                bgc.setFill(); ctx.fill(CGRect(x: 0, y: 0, width: W, height: H))
+                bgc.setFill(); ctx.fill(CGRect(x: 0, y: 0, width: W, height: H), blendMode: .normal)
             }
             // QR bottom-right
             let qs: CGFloat = 250
@@ -240,7 +240,7 @@ enum CardRenderer {
     static func defaultIcon(_ size: CGFloat, _ c: AppConfig) -> UIImage {
         renderer(CGSize(width: size, height: size), opaque: true).image { ctx in
             color(c.bgColor, RGB(r: 11, g: 60, b: 93)).setFill()
-            ctx.fill(CGRect(x: 0, y: 0, width: size, height: size))
+            ctx.fill(CGRect(x: 0, y: 0, width: size, height: size), blendMode: .normal)
             let initials = c.clubName.split(separator: " ").prefix(2).compactMap { $0.first.map(String.init) }.joined().uppercased()
             let f = font(size * 0.42, bold: true)
             let s = (initials.isEmpty ? "C" : initials) as NSString
@@ -292,7 +292,7 @@ enum CardRenderer {
                     } else {
                         bgc.setFill()
                     }
-                    ctx.fill(CGRect(origin: .zero, size: size))
+                    ctx.fill(CGRect(origin: .zero, size: size), blendMode: .normal)
                     if let bg = background {
                         let strength = scrimStrength(bg, tint: bgc, tintAlpha: CGFloat(max(0, min(100, c.bgOverlay))) / 100)
                         if strength > 0 { scrim(ctx.cgContext, width: size.width, height: size.height, strength: strength, reach: 0.55) }
