@@ -8,11 +8,17 @@ public struct Member: Identifiable, Hashable, Codable {
     public var email: String
     public var photoColumn: String
     public var row: Int
+    public var bloodType: String
+    public var rhRaw: String
 
-    public init(reg: String, name: String, surname: String, email: String, photoColumn: String = "", row: Int = 0) {
+    public init(reg: String, name: String, surname: String, email: String, photoColumn: String = "", row: Int = 0,
+                bloodType: String = "", rh: String = "") {
         self.reg = reg; self.name = name; self.surname = surname; self.email = email
-        self.photoColumn = photoColumn; self.row = row
+        self.photoColumn = photoColumn; self.row = row; self.bloodType = bloodType; self.rhRaw = rh
     }
+
+    /// Rh shown as "+" or "−" ("pos", "Rh+", "negative" … are understood).
+    public var rh: String { MemberList.normalizeRh(rhRaw) }
 
     public var fullName: String { "\(name) \(surname)".trimmingCharacters(in: .whitespaces) }
 
@@ -31,6 +37,7 @@ public struct Member: Identifiable, Hashable, Codable {
 
     public func fields(_ config: AppConfig? = nil) -> [String: String] {
         var d = ["reg": reg, "name": name, "surname": surname, "full_name": fullName, "email": email]
+        d["blood_type"] = bloodType; d["rh"] = rh
         if let c = config {
             d["club"] = c.clubName; d["season"] = c.season; d["card_title"] = c.cardTitle
         }
@@ -67,6 +74,14 @@ public enum MemberList {
             ["photo", "photofile", "picture", "image", "slika", "fotografija", "foto"].contains(h) {
             found["photo"] = i; break
         }
+        for (i, h) in norm.enumerated() where !found.values.contains(i) &&
+            (["rh", "rhfactor", "rhfaktor", "rhd", "faktorrh"].contains(h) || h.hasPrefix("rh")) {
+            found["rh"] = i; break
+        }
+        for (i, h) in norm.enumerated() where !found.values.contains(i) &&
+            (h.contains("blood") || h.contains("krv") || ["bloodtype", "bloodgroup", "grupa", "abo"].contains(h)) {
+            found["blood"] = i; break
+        }
         let required = ["reg", "name", "surname", "email"]
         let missing = required.filter { found[$0] == nil }
         if !missing.isEmpty && headers.count >= 4 {
@@ -89,11 +104,20 @@ public enum MemberList {
                 return clean(r[i])
             }
             let m = Member(reg: v("reg"), name: v("name"), surname: v("surname"), email: v("email"),
-                           photoColumn: v("photo"), row: offset + 1)
+                           photoColumn: v("photo"), row: offset + 1, bloodType: v("blood"), rh: v("rh"))
             if m.reg.isEmpty && m.name.isEmpty && m.surname.isEmpty && m.email.isEmpty { continue }
             members.append(m)
         }
         return members
+    }
+
+    public static func normalizeRh(_ v: String) -> String {
+        let s = v.trimmingCharacters(in: .whitespaces)
+        let t = s.lowercased().replacingOccurrences(of: "rh", with: "").replacingOccurrences(of: "d", with: "")
+            .trimmingCharacters(in: CharacterSet(charactersIn: " :"))
+        if ["+", "pos", "positive", "pozitivan", "poz", "plus"].contains(t) { return "+" }
+        if ["-", "−", "–", "neg", "negative", "negativan", "minus"].contains(t) { return "−" }
+        return s
     }
 
     public static func load(data: Data, fileExtension: String) throws -> [Member] {

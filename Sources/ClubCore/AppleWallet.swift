@@ -48,13 +48,23 @@ public enum AppleWallet {
                     "secondaryFields": secondary,
                     "auxiliaryFields": [field("email", "EMAIL", m.email)]]
         }
-        body["backFields"] = [
+        var back = [
             field("b_reg", "Registration number", m.reg),
             field("b_name", "Name", m.name),
             field("b_surname", "Surname", m.surname),
             field("b_email", "Email", m.email),
             field("b_club", "Club", c.clubName),
         ]
+        let blood = c.bloodFields(for: m)
+        var aux = (body["auxiliaryFields"] as? [[String: Any]]) ?? []
+        if let bt = blood.blood {
+            aux.append(field("blood", "🩸 BLOOD TYPE", bt)); back.append(field("b_blood", "🩸 Blood type", bt))
+        }
+        if let rh = blood.rh {
+            aux.append(field("rh", "RH", rh)); back.append(field("b_rh", "Rh", rh))
+        }
+        body["auxiliaryFields"] = aux
+        body["backFields"] = back
         p[layout] = body
         let exp = c.expirationDate.trimmingCharacters(in: .whitespaces)
         if !exp.isEmpty {

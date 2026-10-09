@@ -111,6 +111,7 @@ public final class GoogleWalletClient {
         let rows: [[String: Any]] = [
             ["twoItems": ["startItem": f("object.textModulesData['reg']"), "endItem": f("object.textModulesData['season']")]],
             ["oneItem": ["item": f("object.textModulesData['email']")]],
+            ["twoItems": ["startItem": f("object.textModulesData['blood']"), "endItem": f("object.textModulesData['rh']")]],
         ]
         return ["id": classId, "classTemplateInfo": ["cardTemplateOverride": ["cardRowTemplateInfos": rows]]]
     }
@@ -159,6 +160,12 @@ public final class GoogleWalletClient {
                 ["id": "surname", "header": "Surname", "body": dash(m.surname)],
             ],
         ]
+        let blood = c.bloodFields(for: m)
+        if var mods = o["textModulesData"] as? [[String: Any]] {
+            if let bt = blood.blood { mods.append(["id": "blood", "header": "🩸 Blood type", "body": bt]) }
+            if let rh = blood.rh { mods.append(["id": "rh", "header": "Rh", "body": rh]) }
+            o["textModulesData"] = mods
+        }
         let logo = c.googleLogoUrl.trimmingCharacters(in: .whitespaces)
         if !logo.isEmpty { o["logo"] = ["sourceUri": ["uri": logo], "contentDescription": Self.ls("\(c.clubName) logo")] }
         let hero = c.googleHeroUrl.trimmingCharacters(in: .whitespaces)

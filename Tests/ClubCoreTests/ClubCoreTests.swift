@@ -155,6 +155,30 @@ final class ClubCoreTests: XCTestCase {
         XCTAssertNil(PhotoMatcher.match(m, fileNames: ["2.jpg", "Ana.jpg"]))
     }
 
+    func testBloodTypeAndRh() throws {
+        let ms = try MemberList.load(data: fixtureData("members_blood.csv"), fileExtension: "csv")
+        XCTAssertEqual(ms.map(\.bloodType), ["A", "0", "AB"])
+        XCTAssertEqual(ms.map(\.rh), ["+", "−", ""])
+        var c = AppConfig()
+        c.applePassTypeId = "pass.x.y"; c.appleTeamId = "ABCDE12345"
+        XCTAssertEqual(c.bloodFields(for: ms[0]).blood, "A")
+        XCTAssertEqual(c.bloodFields(for: ms[0]).rh, "+")
+        c.setBlood("rh", shown: false, for: ms[0])
+        XCTAssertNil(c.bloodFields(for: ms[0]).rh)
+        XCTAssertEqual(c.bloodHidden["1"], ["rh"])
+        let pj = String(decoding: try AppleWallet.passJSON(member: ms[0], config: c, qrText: "q"), as: UTF8.self)
+        XCTAssertTrue(pj.contains("🩸 BLOOD TYPE")); XCTAssertFalse(pj.contains("\"RH\""))
+        c.setBlood("rh", shown: true, for: ms[0])
+        XCTAssertNil(c.bloodHidden["1"])
+        c.bloodEnabled = false
+        XCTAssertFalse(String(decoding: try AppleWallet.passJSON(member: ms[0], config: c, qrText: "q"), as: UTF8.self).contains("🩸"))
+        // round trip with the Ubuntu key names
+        var c2 = AppConfig(); c2.setBlood("blood", shown: false, for: ms[1])
+        let json = String(decoding: try c2.encoded(), as: UTF8.self)
+        XCTAssertTrue(json.contains("\"blood_hidden\""))
+        XCTAssertEqual(try AppConfig.decode(c2.encoded()).bloodHidden["2"], ["blood"])
+    }
+
     // MARK: config / transfer file
     func testUbuntuConfigImport() throws {
         let c = try AppConfig.decode(fixtureData("ubuntu_config.json"))

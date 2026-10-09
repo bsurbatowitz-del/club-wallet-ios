@@ -157,6 +157,9 @@ struct DesignView: View {
                 }
                 Section {
                     Toggle("Use member photos", isOn: $store.config.photosEnabled)
+                    Toggle(isOn: $store.config.bloodEnabled) {
+                        Label { Text("Show blood type and Rh on cards") } icon: { Image(systemName: "drop.fill").foregroundStyle(.red) }
+                    }
                     Button("Import photos from Files…") { target = .photos }
                     Text("\(store.members.filter { store.photoURL($0) != nil }.count) of \(store.members.count) members have a photo")
                         .foregroundStyle(.secondary)

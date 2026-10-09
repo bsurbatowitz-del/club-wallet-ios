@@ -233,7 +233,41 @@ enum CardRenderer {
             y += 92
             text("EMAIL", at: CGPoint(x: pad, y: y), size: 20, bold: true, color: lc)
             text(m.email, at: CGPoint(x: pad, y: y + 24), size: 26, bold: false, color: fg, maxWidth: qx - pad - 30)
+
+            let blood = c.bloodFields(for: m)
+            if blood.blood != nil || blood.rh != nil {
+                y += 78
+                var bx = pad
+                if let bt = blood.blood {
+                    bloodDrop(CGRect(x: bx, y: y - 3, width: 19, height: 26))
+                    text("BLOOD TYPE:", at: CGPoint(x: bx + 27, y: y), size: 20, bold: true, color: lc)
+                    text(bt, at: CGPoint(x: bx, y: y + 24), size: 34, bold: true, color: fg)
+                    bx += 250
+                }
+                if let rh = blood.rh {
+                    text("RH:", at: CGPoint(x: bx, y: y), size: 20, bold: true, color: lc)
+                    text(rh, at: CGPoint(x: bx, y: y + 24), size: 34, bold: true, color: fg)
+                }
+            }
         }
+    }
+
+    /// Small red blood-drop icon.
+    static func bloodDrop(_ r: CGRect) {
+        let p = UIBezierPath()
+        let radius = r.width / 2
+        let center = CGPoint(x: r.midX, y: r.maxY - radius)
+        p.move(to: CGPoint(x: r.midX, y: r.minY))
+        p.addCurve(to: CGPoint(x: r.maxX, y: center.y),
+                   controlPoint1: CGPoint(x: r.midX + radius * 0.3, y: r.minY + r.height * 0.25),
+                   controlPoint2: CGPoint(x: r.maxX, y: center.y - radius * 0.6))
+        p.addArc(withCenter: center, radius: radius, startAngle: 0, endAngle: .pi, clockwise: true)
+        p.addCurve(to: CGPoint(x: r.midX, y: r.minY),
+                   controlPoint1: CGPoint(x: r.minX, y: center.y - radius * 0.6),
+                   controlPoint2: CGPoint(x: r.midX - radius * 0.3, y: r.minY + r.height * 0.25))
+        p.close()
+        UIColor(red: 0.86, green: 0.12, blue: 0.18, alpha: 1).setFill()
+        p.fill()
     }
 
     // MARK: Apple pass images

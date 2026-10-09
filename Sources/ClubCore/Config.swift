@@ -31,6 +31,8 @@ public struct AppConfig: Codable, Equatable {
     public var photosEnabled = true
     public var qrTemplate = "Reg: {reg}\nName: {name}\nSurname: {surname}\nEmail: {email}"
     public var photoOverrides: [String: String] = [:]   // member key -> photo file name in the app
+    public var bloodEnabled = true                       // print Blood type / Rh from the member list
+    public var bloodHidden: [String: [String]] = [:]     // member key -> ["blood", "rh"] hidden on that card
 
     // Apple Wallet
     public var appleEnabled = true
@@ -65,7 +67,7 @@ public struct AppConfig: Codable, Equatable {
 
     enum CodingKeys: String, CodingKey {
         case clubName, cardTitle, season, expirationDate, bgColor, fgColor, labelColor, bgOverlay, bgAutoColor
-        case photosEnabled, qrTemplate, photoOverrides
+        case photosEnabled, qrTemplate, photoOverrides, bloodEnabled, bloodHidden
         case appleEnabled, applePassTypeId, appleTeamId, appleLayout, appleCertMode, appleP12Password
         case googleEnabled, googleIssuerId, googleClassSuffix, googleLogoUrl, googleHeroUrl
         case smtpHost, smtpPort, smtpSecurity, smtpUser, smtpPassword, fromName, fromEmail, replyTo
@@ -103,6 +105,8 @@ public struct AppConfig: Codable, Equatable {
         photosEnabled = bool(.photosEnabled, d.photosEnabled)
         qrTemplate = str(.qrTemplate, d.qrTemplate)
         photoOverrides = (try? c.decodeIfPresent([String: String].self, forKey: .photoOverrides)) ?? [:]
+        bloodEnabled = bool(.bloodEnabled, d.bloodEnabled)
+        bloodHidden = (try? c.decodeIfPresent([String: [String]].self, forKey: .bloodHidden)) ?? [:]
         appleEnabled = bool(.appleEnabled, d.appleEnabled)
         applePassTypeId = str(.applePassTypeId, d.applePassTypeId)
         appleTeamId = str(.appleTeamId, d.appleTeamId)
@@ -145,6 +149,24 @@ public struct AppConfig: Codable, Equatable {
 
     public func qrText(for m: Member) -> String {
         TextUtil.fill(qrTemplate.replacingOccurrences(of: "\\n", with: "\n"), m.fields(self))
+    }
+
+    /// Blood type and Rh to print on this member's card (nil when empty or switched off).
+    public func bloodFields(for m: Member) -> (blood: String?, rh: String?) {
+        guard bloodEnabled else { return (nil, nil) }
+        let hidden = bloodHidden[m.key] ?? []
+        return (m.bloodType.isEmpty || hidden.contains("blood") ? nil : m.bloodType,
+                m.rh.isEmpty || hidden.contains("rh") ? nil : m.rh)
+    }
+
+    public func isBloodShown(_ field: String, for m: Member) -> Bool {
+        !(bloodHidden[m.key] ?? []).contains(field)
+    }
+
+    public mutating func setBlood(_ field: String, shown: Bool, for m: Member) {
+        var list = Set(bloodHidden[m.key] ?? [])
+        if shown { list.remove(field) } else { list.insert(field) }
+        bloodHidden[m.key] = list.isEmpty ? nil : list.sorted()
     }
 
     public func passFileName(for m: Member) -> String {

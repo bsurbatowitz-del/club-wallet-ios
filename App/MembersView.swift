@@ -76,6 +76,16 @@ struct MembersView: View {
                         Spacer()
                         Text("\(selection.count) selected").font(.footnote)
                         Spacer()
+                        Menu {
+                            Button("Show blood type + Rh") { setBlood(["blood", "rh"], true) }
+                            Button("Hide blood type + Rh") { setBlood(["blood", "rh"], false) }
+                            Divider()
+                            Button("Show blood type") { setBlood(["blood"], true) }
+                            Button("Hide blood type") { setBlood(["blood"], false) }
+                            Button("Show Rh") { setBlood(["rh"], true) }
+                            Button("Hide Rh") { setBlood(["rh"], false) }
+                        } label: { Image(systemName: "drop.fill").foregroundStyle(.red) }
+                            .disabled(selection.isEmpty)
                         Button("Make") { store.run(selectedMembers, send: false) }.disabled(selection.isEmpty)
                         Button("Email") { prepareSend(selectedMembers) }.disabled(selection.isEmpty)
                     }
@@ -107,6 +117,13 @@ struct MembersView: View {
         if Demo.openFirstMember, path.isEmpty, let m = store.members.first { path = [m] }
     }
 
+    func setBlood(_ fields: [String], _ show: Bool) {
+        var c = store.config
+        for m in selectedMembers { for f in fields { c.setBlood(f, shown: show, for: m) } }
+        store.config = c
+        store.revision += 1
+    }
+
     func prepareSend(_ list: [Member]) {
         sendList = list
         askSend = true
@@ -129,7 +146,13 @@ struct MemberRow: View {
             .frame(width: 44, height: 44)
             .clipShape(RoundedRectangle(cornerRadius: 8))
             VStack(alignment: .leading, spacing: 2) {
-                Text(member.fullName).font(.body.weight(.medium))
+                HStack(spacing: 6) {
+                    Text(member.fullName).font(.body.weight(.medium))
+                    let b = store.config.bloodFields(for: member)
+                    if b.blood != nil || b.rh != nil {
+                        Text("🩸\(b.blood ?? "")\(b.rh ?? "")").font(.caption.weight(.semibold)).foregroundStyle(.red)
+                    }
+                }
                 Text("#\(member.reg) · \(member.email.isEmpty ? "no email" : member.email)")
                     .font(.footnote)
                     .foregroundStyle(member.emailValid ? Color.secondary : Color.red)
@@ -176,6 +199,19 @@ struct MemberDetailView: View {
                 LabeledContent("Email", value: member.email)
                 if let d = store.sentDate(member) { LabeledContent("Emailed", value: d) }
             }
+            if !member.bloodType.isEmpty || !member.rh.isEmpty {
+                Section {
+                    Toggle(isOn: bloodBinding("blood")) {
+                        Label { Text("Blood type: \(member.bloodType.isEmpty ? "–" : member.bloodType)") }
+                            icon: { Image(systemName: "drop.fill").foregroundStyle(.red) }
+                    }.disabled(member.bloodType.isEmpty)
+                    Toggle("Rh: \(member.rh.isEmpty ? "–" : member.rh)", isOn: bloodBinding("rh")).disabled(member.rh.isEmpty)
+                } header: { Text("On this member's card") } footer: {
+                    if !store.config.bloodEnabled {
+                        Text("Blood info is switched off for all cards (Design tab).").foregroundStyle(.orange)
+                    }
+                }
+            }
             Section("Photo") {
                 PhotosPicker(selection: $pickedPhoto, matching: .images) {
                     Label(store.photoURL(member) == nil ? "Choose photo" : "Change photo", systemImage: "person.crop.square")
@@ -219,6 +255,11 @@ struct MemberDetailView: View {
         .sheet(isPresented: $sharing) {
             if let c = lastCard { ShareSheet(items: [c.pkpassURL, c.pngURL].compactMap { $0 }) }
         }
+    }
+
+    func bloodBinding(_ field: String) -> Binding<Bool> {
+        Binding(get: { store.config.isBloodShown(field, for: member) },
+                set: { store.config.setBlood(field, shown: $0, for: member); render() })
     }
 
     func render() {

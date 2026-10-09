@@ -27,8 +27,8 @@ enum Demo {
         c.appleTeamId = "ABCDE12345"; c.googleIssuerId = "3388000000012345678"; c.smtpUser = "club@example.com"
         c.fromEmail = "club@example.com"
         store.config = c
-        let csv = "Reg number;Name;Surname;email\n1;Bojan;Šurbatović;bojan@example.com\n2;Ana;Đokić;ana@example.com\n" +
-                  "3;Marko;Marković;marko@example.com\n4;Ivana;Horvat;not-an-email\n"
+        let csv = "Reg number;Name;Surname;email;Blood type;Rh\n1;Bojan;Šurbatović;bojan@example.com;A;+\n" +
+                  "2;Ana;Đokić;ana@example.com;0;-\n3;Marko;Marković;marko@example.com;AB;\n4;Ivana;Horvat;not-an-email;;\n"
         store.importMembers(data: Data(csv.utf8), fileName: "members.csv")
         let bg = picture(CGSize(width: 1600, height: 900)) { ctx in
             let colors = [UIColor(red: 1, green: 0.6, blue: 0.3, alpha: 1).cgColor, UIColor(red: 0.05, green: 0.3, blue: 0.55, alpha: 1).cgColor]
