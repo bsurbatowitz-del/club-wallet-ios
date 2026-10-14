@@ -124,6 +124,7 @@ struct DesignView: View {
 
     var body: some View {
         NavigationStack {
+          ScrollViewReader { proxy in
             Form {
                 Section("Card") {
                     LabeledField(label: "Club", text: $store.config.clubName, prompt: "Club name")
@@ -187,6 +188,12 @@ struct DesignView: View {
                     }
                     Button("Refresh preview") { render() }
                 } header: { Text("Preview") }
+                .id("preview")
+            }
+            .onAppear {
+                if Demo.screen == "design-preview" {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { proxy.scrollTo("preview", anchor: .top) }
+                }
             }
             .navigationTitle("Card design")
             .fileImporter(target: $target)
@@ -211,6 +218,7 @@ struct DesignView: View {
                     libraryItem = nil
                 }
             }
+          }
         }
     }
 
@@ -351,6 +359,7 @@ struct SettingsView: View {
     @State private var target: ImportTarget?
     @State private var shareURL: URL?
     @State private var askReset = false
+    @State private var askSample = false
 
     var body: some View {
         NavigationStack {
@@ -374,6 +383,12 @@ struct SettingsView: View {
                     Text("Generated cards are in the Files app → On My iPhone → Club Wallet → Cards.")
                 }
                 Section {
+                    Button { askSample = true } label: { Label("Load sample club", systemImage: "person.3.sequence") }
+                } footer: {
+                    Text("Try the app with a made-up club, members, photos and background. " +
+                         "Cards can be previewed; Apple/Google Wallet and email need your own setup.")
+                }
+                Section {
                     Button("Reset everything…", role: .destructive) { askReset = true }
                 }
                 Section {
@@ -385,6 +400,11 @@ struct SettingsView: View {
             .fileImporter(target: $target)
             .sheet(item: Binding(get: { shareURL.map(ShareItem.init) }, set: { shareURL = $0?.url })) { item in
                 ShareSheet(items: [item.url])
+            }
+            .confirmationDialog("Load the sample club?", isPresented: $askSample, titleVisibility: .visible) {
+                Button("Replace my data with the sample club", role: .destructive) { Demo.install(into: store, force: true) }
+            } message: {
+                Text("Your current settings, keys, photos and member list are removed. Export your settings first if you want to keep them.")
             }
             .confirmationDialog("Reset everything?", isPresented: $askReset, titleVisibility: .visible) {
                 Button("Delete all settings, keys, photos and the member list", role: .destructive) { store.resetAll() }

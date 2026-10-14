@@ -115,6 +115,11 @@ struct MembersView: View {
 
     func openDemoMember() {
         if Demo.openFirstMember, path.isEmpty, let m = store.members.first { path = [m] }
+        if Demo.screen == "progress", !store.busy, !store.showProgress { store.run(store.members, send: false) }
+        if Demo.screen == "select", !editMode.isEditing {
+            editMode = .active
+            selection = Set(store.members.prefix(3).map(\.id))
+        }
     }
 
     func setBlood(_ fields: [String], _ show: Bool) {
