@@ -68,28 +68,9 @@ struct MembersView: View {
                         }
                     } label: { Image(systemName: "ellipsis.circle") }
                 }
-                if editMode.isEditing {
-                    ToolbarItemGroup(placement: .bottomBar) {
-                        Button(selection.count == store.members.count ? "None" : "All") {
-                            selection = selection.count == store.members.count ? [] : Set(store.members.map(\.id))
-                        }
-                        Spacer()
-                        Text("\(selection.count) selected").font(.footnote)
-                        Spacer()
-                        Menu {
-                            Button("Show blood type + Rh") { setBlood(["blood", "rh"], true) }
-                            Button("Hide blood type + Rh") { setBlood(["blood", "rh"], false) }
-                            Divider()
-                            Button("Show blood type") { setBlood(["blood"], true) }
-                            Button("Hide blood type") { setBlood(["blood"], false) }
-                            Button("Show Rh") { setBlood(["rh"], true) }
-                            Button("Hide Rh") { setBlood(["rh"], false) }
-                        } label: { Image(systemName: "drop.fill").foregroundStyle(.red) }
-                            .disabled(selection.isEmpty)
-                        Button("Make") { store.run(selectedMembers, send: false) }.disabled(selection.isEmpty)
-                        Button("Email") { prepareSend(selectedMembers) }.disabled(selection.isEmpty)
-                    }
-                }
+            }
+            .safeAreaInset(edge: .bottom) {
+                if editMode.isEditing { selectionBar }
             }
             .fileImporter(isPresented: $importing, allowedContentTypes: spreadsheetTypes + [.data]) { result in
                 if case .success(let url) = result {
@@ -120,6 +101,34 @@ struct MembersView: View {
             editMode = .active
             selection = Set(store.members.prefix(3).map(\.id))
         }
+    }
+
+    /// Actions for the selected members – sits above the tab bar.
+    var selectionBar: some View {
+        HStack(spacing: 14) {
+            Button(selection.count == store.members.count ? "None" : "All") {
+                selection = selection.count == store.members.count ? [] : Set(store.members.map(\.id))
+            }
+            Text("\(selection.count) selected").font(.footnote).foregroundStyle(.secondary)
+            Spacer()
+            Menu {
+                Button("Show blood type + Rh") { setBlood(["blood", "rh"], true) }
+                Button("Hide blood type + Rh") { setBlood(["blood", "rh"], false) }
+                Divider()
+                Button("Show blood type") { setBlood(["blood"], true) }
+                Button("Hide blood type") { setBlood(["blood"], false) }
+                Button("Show Rh") { setBlood(["rh"], true) }
+                Button("Hide Rh") { setBlood(["rh"], false) }
+            } label: { Image(systemName: "drop.fill").foregroundStyle(.red).padding(6) }
+                .disabled(selection.isEmpty)
+            Button("Make") { store.run(selectedMembers, send: false) }
+                .buttonStyle(.bordered).disabled(selection.isEmpty)
+            Button("Email") { prepareSend(selectedMembers) }
+                .buttonStyle(.borderedProminent).disabled(selection.isEmpty)
+        }
+        .padding(.horizontal, 16).padding(.vertical, 10)
+        .background(.bar, in: RoundedRectangle(cornerRadius: 18))
+        .padding(.horizontal, 12).padding(.bottom, 6)
     }
 
     func setBlood(_ fields: [String], _ show: Bool) {

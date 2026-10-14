@@ -26,7 +26,7 @@ enum Demo {
         var c = AppConfig()
         c.clubName = "Triatlon Klub Budva"; c.season = "2026"; c.applePassTypeId = "pass.me.tkbudva.member"
         c.appleTeamId = "ABCDE12345"; c.googleIssuerId = "3388000000012345678"; c.smtpUser = "club@example.com"
-        c.fromEmail = "club@example.com"
+        c.fromEmail = "club@example.com"; c.fromName = "Triatlon Klub Budva"
         store.config = c
         let csv = "Reg number;Name;Surname;email;Blood type;Rh\n1;Bojan;Šurbatović;bojan@example.com;A;+\n" +
                   "2;Ana;Đokić;ana@example.com;0;-\n3;Marko;Marković;marko@example.com;AB;+\n" +

@@ -1,0 +1,90 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Club Wallet – User manual &amp; support</title><link rel="stylesheet" href="style.css"></head><body>
+<header><div class="wrap"><h1>User manual &amp; support</h1><p>Club Wallet for iPhone (iOS 18 or newer)</p></div></header>
+<nav><a href="index.html">Home</a><a href="#start">Start</a><a href="#members">Members</a><a href="#design">Design</a><a href="#apple">Apple Wallet</a><a href="#google">Google Wallet</a><a href="#email">Email</a><a href="#send">Sending</a><a href="#help">Problems</a><a href="privacy.html">Privacy</a></nav>
+<main>
+
+<section id="start"><h2>1. First steps</h2>
+<p>Club Wallet has five tabs: <b>Members</b>, <b>Design</b>, <b>Wallets</b>, <b>Email</b> and <b>Settings</b>.</p>
+<ol><li>Want to look around first? <b>Settings → Load sample club</b> fills the app with a made-up club. It replaces your data, so do it before setting up your own club.</li>
+<li>Import your member list (section 2).</li>
+<li>Design the card (section 3).</li>
+<li>Set up Apple Wallet, Google Wallet and email – once (sections 4–6). You can switch either wallet off if you don't need it.</li>
+<li>Make and send the cards (section 7).</li></ol>
+<div class="note">Already using Club Wallet Cards on a computer (Ubuntu)? Choose <b>File → Export for iPhone app…</b> there, send the <code>.clubwallet</code> file to your iPhone, then tap it in the Files app (or <b>Settings → Import from Ubuntu app</b>). Everything – settings, keys, logo, background, members and photos – is copied in one go.</div>
+</section>
+
+<section id="members"><h2>2. Members</h2>
+<h3>The member list</h3>
+<p>Make a spreadsheet with one row per member and a header row. Save it as <code>.ods</code>, <code>.xlsx</code> or <code>.csv</code> and put it in Files (iCloud Drive or On My iPhone).</p>
+<ul><li>Required columns: <b>Reg number</b>, <b>Name</b>, <b>Surname</b>, <b>email</b></li>
+<li>Optional: <b>Photo</b> (a photo file name), <b>Blood type</b> (or <i>Krvna grupa</i>) and <b>Rh</b> (<code>+</code>/<code>-</code>, <code>pos</code>/<code>neg</code> or <code>Rh+</code>)</li></ul>
+<p>Columns are recognised by their names (English, Croatian and Serbian names work), in any order. Then: <b>Members → ⋯ → Import member list…</b>. Members with a missing or invalid email are shown in red.</p>
+<h3>Member photos</h3>
+<ul><li>Tap a member → <b>Choose photo</b> to pick one from your photo library, or</li>
+<li><b>Design → Import photos from Files…</b> to add many at once. They're matched by file name: <code>1.jpg</code>, <code>001.png</code>, <code>Name Surname.jpg</code>, <code>Surname_Name.png</code>, <code>1_Name_Surname.jpg</code> or <code>email@address.jpg</code> (capitals and č/ć/š/đ/ž don't matter).</li></ul>
+<p>Photos are cropped and turned upright automatically. Members without a photo still get a card.</p>
+<h3>Blood type and Rh</h3>
+<p>If your list has these columns, they appear on the card with a red drop. On a member's page, two switches show or hide each one on that member's card. In <b>Select</b> mode, the red drop button changes several members at once. <b>Design → Show blood type and Rh on cards</b> switches them off for everyone.</p>
+</section>
+
+<section id="design"><h2>3. Card design</h2>
+<ul><li><b>Card</b>: club name, card title, season, and an optional expiry date (YYYY-MM-DD).</li>
+<li><b>Colours</b>: background, text and label colours – or <i>Take colours from background picture</i>.</li>
+<li><b>Pictures</b>: logo and background picture from your photo library or Files. <i>Colour tint over picture</i> at 0% shows the picture as it is; more tint makes text easier to read.</li>
+<li><b>QR code content</b>: what the QR code holds. Placeholders: <code>{reg}</code> <code>{name}</code> <code>{surname}</code> <code>{full_name}</code> <code>{email}</code> <code>{club}</code> <code>{season}</code> <code>{blood_type}</code> <code>{rh}</code>.</li>
+<li><b>Preview</b> shows the card picture (used in the email) and the Apple Wallet banner.</li></ul>
+<p>Apple Wallet layouts (<b>Wallets → Layout</b>):</p>
+<ul><li><b>Banner</b> – the background picture as a sharp banner with the member's photo. Member name, Reg. No. and blood type underneath.</li>
+<li><b>Full background</b> – the picture fills the pass; iPhones always show it blurred. Photo as a thumbnail.</li>
+<li><b>Classic</b> – plain colour, photo as a thumbnail.</li></ul>
+</section>
+
+<section id="apple"><h2>4. Apple Wallet (one-time setup)</h2>
+<p>Apple only accepts passes signed with the club's own certificate. You need an <a href="https://developer.apple.com/programs/">Apple Developer Program</a> membership.</p>
+<h3>Easiest: with the computer app</h3>
+<p>Club Wallet Cards for Ubuntu has an automatic setup (<code>club-wallet-cards-apple-setup</code>) that creates everything. Then use <b>Export for iPhone app…</b> to bring it to your iPhone.</p>
+<h3>By hand</h3>
+<ol><li>On <a href="https://developer.apple.com/account/resources/identifiers/list/passTypeId">developer.apple.com → Identifiers → Pass Type IDs</a>, create an ID like <code>pass.com.yourclub.member</code>.</li>
+<li>Create its certificate there. You need a certificate request (CSR); the Ubuntu app's <i>Create key + CSR</i> makes one, or Keychain Access on a Mac. Download <code>pass.cer</code>.</li>
+<li>Download Apple's intermediate certificate <a href="https://www.apple.com/certificateauthority/AppleWWDRCAG4.cer">AppleWWDRCAG4.cer</a>.</li>
+<li>In the app: <b>Wallets → Certificate</b>. Choose <i>.cer + .pem key</i> and import <code>pass.cer</code> and the private key, or choose <i>.p12 file</i>, import it and type its password. Also import the WWDR certificate.</li>
+<li>Tap <b>Check certificate</b>. The Pass Type ID and Team ID are filled in for you.</li></ol>
+<p class="muted">The certificate is valid for one year. Renew it a few weeks before it expires.</p>
+</section>
+
+<section id="google"><h2>5. Google Wallet (one-time setup, free)</h2>
+<ol><li>In the <a href="https://pay.google.com/business/console">Google Pay &amp; Wallet Console</a>, open <i>Google Wallet API</i> and create an issuer account.</li>
+<li>In <a href="https://console.cloud.google.com/">Google Cloud</a>, create a project, enable the <i>Google Wallet API</i> and create a <i>service account</i> with a JSON key. The Ubuntu app's <code>club-wallet-cards-google-setup</code> does this for you.</li>
+<li>In the Wallet Console → <i>Users</i>, invite the service account's email address as <i>Developer</i>.</li>
+<li>In the app: <b>Wallets → Service account key</b> → import the JSON file, then <b>Find my Issuer ID</b> and <b>Test connection</b>.</li></ol>
+<p>New issuer accounts start in demo mode: passes show "[TEST ONLY]" and only test users can save them. Request publishing access in the Wallet Console before sending to everyone. Google Wallet cards can only be saved on Android phones. To show a picture on the Google card, put a public https link to it in <b>Banner URL</b> (and <b>Logo URL</b>).</p>
+</section>
+
+<section id="email"><h2>6. Email</h2>
+<ol><li><b>Email → Use Gmail settings</b> (server <code>smtp.gmail.com</code>, port 465, SSL/TLS) – or enter your provider's SSL/TLS server.</li>
+<li>Username: your email address. Password: for Gmail, an <a href="https://myaccount.google.com/apppasswords">App password</a> (it needs 2-Step Verification). Your normal password won't work.</li>
+<li>Fill in the sender name and email, then write the subject and message. Placeholders: <code>{name}</code> <code>{surname}</code> <code>{full_name}</code> <code>{reg}</code> <code>{email}</code> <code>{club}</code> <code>{season}</code> <code>{pass_filename}</code>.</li>
+<li>Tap <b>Send test email to myself</b> and open it on your iPhone.</li></ol>
+<p class="muted">Port 587 (STARTTLS) is not supported – use port 465. Gmail sends at most about 500 emails a day.</p>
+</section>
+
+<section id="send"><h2>7. Making and sending cards</h2>
+<ul><li><b>One member</b>: tap them, then <i>Add to Apple Wallet on this iPhone</i> (to check the card), <i>Open Google Wallet link</i>, or <i>Email card to member</i>.</li>
+<li><b>Several</b>: <b>Select</b>, tick the members, then <b>Make</b> (cards only) or <b>Email</b>.</li>
+<li><b>Everyone</b>: <b>⋯ → Email cards to everyone…</b> When some members were already emailed, you can send only to the others.</li></ul>
+<p>Each email has the Apple Wallet pass (members tap it on an iPhone), an <i>Add to Google Wallet</i> button (Android) and a picture of the card. Cards are also saved in the Files app → On My iPhone → Club Wallet → Cards. Keep the app open while sending.</p>
+<p>Changed the design or a member's data? Make and email the cards again – members get an updated card.</p>
+</section>
+
+<section id="help"><h2>8. Problems?</h2>
+<ul><li><b>"Certificate problem" / pass won't open</b>: check the WWDR certificate, that the private key belongs to the certificate, and that the certificate hasn't expired (<b>Check certificate</b>).</li>
+<li><b>Google: 401/403</b>: the service account isn't invited in the Wallet Console yet, or the Google Wallet API isn't enabled.</li>
+<li><b>Google card says [TEST ONLY]</b>: your issuer account is still in demo mode – request publishing access.</li>
+<li><b>Mail server error 535</b>: wrong password – for Gmail use an App password.</li>
+<li><b>Background not visible</b>: lower <i>Colour tint over picture</i>, and use the <i>Banner</i> layout for Apple Wallet.</li></ul>
+<p>Still stuck? Email <a href="mailto:b.surbatowitz@icloud.com">b.surbatowitz@icloud.com</a> – tell us your iPhone model, iOS version and what you see.</p>
+</section>
+
+<section><h2>Privacy</h2><p>No account, no tracking. Your data stays on your iPhone and is sent only to the services you set up. Read the <a href="privacy.html">privacy policy</a>.</p></section>
+</main><footer>© 2026 Bojan Šurbatović</footer></body></html>

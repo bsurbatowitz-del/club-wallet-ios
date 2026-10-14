@@ -1,0 +1,24 @@
+{
+  "locale": "en-US",
+  "subtitle": "Wallet membership cards",
+  "promotional_text": "Turn your member list into Apple Wallet and Google Wallet cards with QR codes, photos and your club's look – and email every member their card in one go.",
+  "description": "Club Wallet turns your club's member list into digital membership cards for Apple Wallet and Google Wallet – and emails every member their own card.\n\nMade for sports clubs, associations and teams that want modern member cards without printing plastic or paying for a card service.\n\nIMPORT YOUR MEMBERS\n• Open your member list from Files: .ods, .xlsx or .csv\n• Columns are found automatically: registration number, name, surname, email\n• Optional columns: photo, blood type and Rh\n\nDESIGN YOUR CARD\n• Club name, card title, season and expiry date\n• Your logo and a background picture\n• Colours picked automatically from the picture, or your own\n• Choose the Apple Wallet layout: banner with photo, full background, or classic\n• QR code with the member's details – you decide what it contains\n\nMEMBER PHOTOS\n• Pick a photo from your library on each member's page\n• Or import a folder of photos – matched by file name (1.jpg, \"Name Surname.jpg\" …)\n• Photos are cropped and turned the right way automatically\n\nAPPLE WALLET AND GOOGLE WALLET\n• Signed Apple Wallet passes, with the member's photo\n• \"Add to Google Wallet\" links for Android phones\n• Add a card to your own iPhone's Wallet to check how it looks\n\nEMAIL EVERY MEMBER\n• One tap makes and sends all cards through your own email account (for example Gmail)\n• Each email has the Apple Wallet pass, the Google Wallet button and a picture of the card\n• Members who already got their card are marked and can be skipped\n\nBLOOD TYPE (OPTIONAL)\n• Show blood type and Rh on the card – switch it on or off for each member\n\nPRIVATE BY DESIGN\n• Your member list, photos and keys stay on your iPhone\n• No account, no tracking, no ads\n• Cards go only to the services you set up: Apple, Google and your own email\n\nWHAT YOU NEED\n• Apple Wallet cards: an Apple Developer membership (for the pass certificate)\n• Google Wallet cards: a free Google Wallet issuer account\n• Email: an email account that allows sending from apps (Gmail with an App password works)\nThe user manual explains each step. Try it first with the built-in sample club: Settings → Load sample club.",
+  "keywords": "membership,member card,club,wallet,pass,qr,sports,team,association,id card,pkpass,gym,triathlon",
+  "support_url": "https://bsurbatowitz-del.github.io/club-wallet-ios/support.html",
+  "marketing_url": "https://bsurbatowitz-del.github.io/club-wallet-ios/",
+  "privacy_policy_url": "https://bsurbatowitz-del.github.io/club-wallet-ios/privacy.html",
+  "copyright": "2026 Bojan Šurbatović",
+  "category": "UTILITIES",
+  "review": {
+    "contact_first_name": "Bojan",
+    "contact_last_name": "Šurbatović",
+    "contact_email": "b.surbatowitz@icloud.com",
+    "contact_phone": "",
+    "notes": "Club Wallet makes digital membership cards for a club's members and emails them.\n\nNo login is needed. To see the app working without any setup:\n1. Open Settings (last tab) → Load sample club → Replace my data with the sample club.\n2. Members tab: 8 sample members appear. Tap a member to see their card (photo, QR code, blood type).\n3. Design tab: change colours, logo, background; the preview shows the card and the Apple Wallet banner.\n4. Members tab → Select → choose members → Make: the card images are created (Files app → On My iPhone → Club Wallet → Cards).\n\nSigned Apple Wallet passes, Google Wallet links and sending email need the club's own credentials, which every club sets up for itself: its Apple Developer Pass Type ID certificate, its Google Wallet issuer account, and its own email account (SMTP). We can't include these for review because they are the club's private keys. The user manual (support URL) explains the setup.\n\nThe app has no accounts, no in-app purchases, no ads and no analytics. All data stays on the device and is only sent to the services the user configures."
+  },
+  "testflight": {
+    "description": "Club Wallet makes Apple Wallet and Google Wallet membership cards from your club's member list and emails them to every member. Try it with Settings → Load sample club.",
+    "feedback_email": "b.surbatowitz@icloud.com",
+    "whats_new": "App Store preparation: sample club for trying the app (Settings → Load sample club), blood type and Rh on cards, Reg. No. under the member name on Apple Wallet passes, fixed background pictures and picture import."
+  }
+}
