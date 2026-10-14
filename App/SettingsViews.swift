@@ -283,8 +283,8 @@ struct WalletsView: View {
                     AssetRow(asset: .appleWWDR) { target = .asset(.appleWWDR) }
                     Button("Check certificate") { store.autofillApple() }
                 } header: { Text("Apple Wallet") } footer: {
-                    Text("Use the same files as in the Ubuntu app (pass.cer, pass_private_key.pem, AppleWWDRCAG4.cer). " +
-                         "Easiest: Settings → Import from Ubuntu app.")
+                    Text("Your club's Pass Type ID certificate from developer.apple.com (pass.cer + its private key, or a .p12) " +
+                         "and Apple's WWDR certificate (AppleWWDRCAG4.cer). The user manual explains each step.")
                 }
                 Section {
                     Toggle("Make Google Wallet passes", isOn: $store.config.googleEnabled)
@@ -296,7 +296,7 @@ struct WalletsView: View {
                     Button("Find my Issuer ID") { store.findIssuer() }
                     Button("Test connection") { store.testGoogle() }
                 } header: { Text("Google Wallet") } footer: {
-                    Text("Uses the service account key made by the Google setup script on Ubuntu.")
+                    Text("A Google Cloud service-account key (.json) that is a user of your Google Wallet issuer account. The user manual explains each step.")
                 }
             }
             .navigationTitle("Wallets")
@@ -365,10 +365,10 @@ struct SettingsView: View {
         NavigationStack {
             Form {
                 Section {
-                    Button { target = .transfer } label: { Label("Import from Ubuntu app (.clubwallet)…", systemImage: "laptopcomputer.and.arrow.down") }
+                    Button { target = .transfer } label: { Label("Import setup file (.clubwallet)…", systemImage: "square.and.arrow.down.on.square") }
                 } footer: {
-                    Text("In the Ubuntu app: File → Export for iPhone app…, then get the file to this iPhone " +
-                         "(email, Google Drive, iCloud) and pick it here – or open it from the Files app.")
+                    Text("A .clubwallet file holds a complete setup – settings, certificates, keys, pictures, members and photos – " +
+                         "exported from Club Wallet Cards on a computer. Pick it here or open it from the Files app.")
                 }
                 Section("Settings file") {
                     Button { share(includeSecrets: false) } label: { Label("Export settings (without passwords)", systemImage: "square.and.arrow.up") }

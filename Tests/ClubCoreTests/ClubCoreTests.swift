@@ -85,7 +85,7 @@ final class ClubCoreTests: XCTestCase {
     func testPKPassSignatureVerifiesWithOpenSSL() throws {
         var c = AppConfig()
         c.applePassTypeId = "pass.hr.triclub.member"; c.appleTeamId = "ABCDE12345"; c.expirationDate = "2026-12-31"
-        let m = Member(reg: "1", name: "Bojan", surname: "Šurbatović", email: "bojan@example.com")
+        let m = Member(reg: "1", name: "Ivan", surname: "Šimić", email: "ivan@example.com")
         for layout in ["storeCard", "eventTicket", "generic"] {
             c.appleLayout = layout
             let json = try AppleWallet.passJSON(member: m, config: c, qrText: c.qrText(for: m))
@@ -130,7 +130,7 @@ final class ClubCoreTests: XCTestCase {
     func checkMembers(_ ms: [Member], file: StaticString = #filePath, line: UInt = #line) {
         XCTAssertEqual(ms.count, 4, file: file, line: line)
         XCTAssertEqual(ms.first?.reg, "1", file: file, line: line)
-        XCTAssertEqual(ms.first?.surname, "Šurbatović", file: file, line: line)
+        XCTAssertEqual(ms.first?.surname, "Šimić", file: file, line: line)
         XCTAssertEqual(ms[1].reg, "7", file: file, line: line)
         XCTAssertEqual(ms[1].photoColumn, "ana.jpg", file: file, line: line)
         XCTAssertFalse(ms[2].emailValid, file: file, line: line)
@@ -148,8 +148,8 @@ final class ClubCoreTests: XCTestCase {
     }
 
     func testPhotoMatching() {
-        let m = Member(reg: "1", name: "Bojan", surname: "Šurbatović", email: "bojan@example.com")
-        for f in ["1.jpg", "001.png", "Surbatovic_Bojan.jpeg", "1_Bojan_Surbatovic.JPG", "bojan@example.com.jpg", "Bojan Šurbatović.heic"] {
+        let m = Member(reg: "1", name: "Ivan", surname: "Šimić", email: "ivan@example.com")
+        for f in ["1.jpg", "001.png", "Simic_Ivan.jpeg", "1_Ivan_Simic.JPG", "ivan@example.com.jpg", "Ivan Šimić.heic"] {
             XCTAssertEqual(PhotoMatcher.match(m, fileNames: ["zzz.jpg", f, "notes.txt"]), f, f)
         }
         XCTAssertNil(PhotoMatcher.match(m, fileNames: ["2.jpg", "Ana.jpg"]))
@@ -192,7 +192,7 @@ final class ClubCoreTests: XCTestCase {
     // MARK: config / transfer file
     func testUbuntuConfigImport() throws {
         let c = try AppConfig.decode(fixtureData("ubuntu_config.json"))
-        XCTAssertEqual(c.clubName, "Triatlon Klub Budva")
+        XCTAssertEqual(c.clubName, "Example Sports Club")
         XCTAssertEqual(c.smtpPort, 587)        // was a string in the file
         XCTAssertEqual(c.bgOverlay, 40)
         XCTAssertEqual(c.appleLayout, "storeCard")
@@ -203,7 +203,7 @@ final class ClubCoreTests: XCTestCase {
 
     func testBundlePlainAndEncrypted() throws {
         let plain = try ClubBundle(data: fixtureData("bundle_plain.clubwallet"))
-        XCTAssertEqual(plain.config.clubName, "Triatlon Klub Budva")
+        XCTAssertEqual(plain.config.clubName, "Example Sports Club")
         XCTAssertEqual(plain.config.smtpPassword, "app-pw")
         XCTAssertNotNil(plain.files["apple_cert"]); XCTAssertNotNil(plain.files["apple_key"])
         XCTAssertNotNil(plain.files["google_service_account"]); XCTAssertNotNil(plain.files["members"])
@@ -258,8 +258,8 @@ final class ClubCoreTests: XCTestCase {
     // MARK: email
     func testEmailParsesAndSendsOverSMTP() async throws {
         var c = AppConfig()
-        c.clubName = "Triatlon Klub Budva"; c.fromEmail = "club@example.com"; c.fromName = "Triatlon Klub Budva"
-        let m = Member(reg: "1", name: "Bojan", surname: "Šurbatović", email: "bojan@example.com")
+        c.clubName = "Example Sports Club"; c.fromEmail = "club@example.com"; c.fromName = "Example Sports Club"
+        let m = Member(reg: "1", name: "Ivan", surname: "Šimić", email: "ivan@example.com")
         let msg = CardEmail.build(config: c, member: m, pkpass: Data(repeating: 1, count: 3000), passFileName: "x.pkpass",
                                   googleURL: "https://pay.google.com/gp/v/save/abc", cardPNG: Data(repeating: 2, count: 2000))
 
@@ -292,8 +292,8 @@ final class ClubCoreTests: XCTestCase {
         try script.write(to: py, atomically: true, encoding: .utf8)
         let (code, text) = try run(python, [py.path, out.path])
         XCTAssertEqual(code, 0, text)
-        XCTAssertTrue(text.contains("Your Triatlon Klub Budva membership card"), text)
-        XCTAssertTrue(text.contains("Šurbatović"), text)
+        XCTAssertTrue(text.contains("Your Example Sports Club membership card"), text)
+        XCTAssertTrue(text.contains("Šimić"), text)
         XCTAssertTrue(text.contains("application/vnd.apple.pkpass x.pkpass"), text)
         XCTAssertTrue(text.contains("image/png membership-card.png"), text)
         XCTAssertTrue(text.contains("Add to Google Wallet: https://pay.google.com/gp/v/save/abc"), text)

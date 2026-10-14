@@ -32,7 +32,7 @@ struct ContentView: View {
             Alert(title: Text(a.title), message: Text(a.message), dismissButton: .default(Text("OK")))
         }
         .sheet(isPresented: $store.showProgress) { ProgressSheet().environmentObject(store) }
-        .alert("Transfer file password", isPresented: Binding(get: { store.pendingTransfer != nil },
+        .alert("Setup file password", isPresented: Binding(get: { store.pendingTransfer != nil },
                                                                set: { if !$0 { store.pendingTransfer = nil } })) {
             SecureField("Password", text: $transferPassword)
             Button("Import") {
@@ -41,7 +41,7 @@ struct ContentView: View {
             }
             Button("Cancel", role: .cancel) { store.pendingTransfer = nil; transferPassword = "" }
         } message: {
-            Text("Type the password you chose when exporting from the Ubuntu app.")
+            Text("Type the password that protects this setup file.")
         }
     }
 }

@@ -26,7 +26,7 @@ struct MembersView: View {
                         Label("No members yet", systemImage: "person.3")
                     } description: {
                         Text("Import your member list (.ods, .xlsx or .csv with Reg number, Name, Surname, email) – " +
-                             "or import everything from the Ubuntu app under Settings.")
+                             "or try the app with Settings → Load sample club.")
                     } actions: {
                         Button("Import member list") { importing = true }.buttonStyle(.borderedProminent)
                     }

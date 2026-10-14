@@ -1,7 +1,7 @@
 {
   "members_file": "",
   "output_dir": "/root/ClubWalletCards",
-  "club_name": "Triatlon Klub Budva",
+  "club_name": "Example Sports Club",
   "card_title": "Membership Card",
   "season": "2026",
   "expiration_date": "",
@@ -17,6 +17,8 @@
   "photo_overrides": {
     "1": "/home/x/p.jpg"
   },
+  "blood_enabled": true,
+  "blood_hidden": {},
   "google_logo_url": "",
   "google_hero_url": "",
   "apple_layout": "storeCard",
@@ -40,7 +42,7 @@
   "smtp_security": "SSL",
   "smtp_user": "",
   "smtp_password": "",
-  "from_name": "Triathlon Club",
+  "from_name": "Example Sports Club",
   "from_email": "",
   "reply_to": "",
   "email_subject": "Your {club} membership card",

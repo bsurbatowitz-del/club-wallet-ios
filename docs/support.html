@@ -1,17 +1,17 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Club Wallet – User manual &amp; support</title><link rel="stylesheet" href="style.css"></head><body>
-<header><div class="wrap"><h1>User manual &amp; support</h1><p>Club Wallet for iPhone (iOS 18 or newer)</p></div></header>
+<title>Sports Club Wallet Cards – User manual &amp; support</title><link rel="stylesheet" href="style.css"></head><body>
+<header><div class="wrap"><h1>User manual &amp; support</h1><p>Sports Club Wallet Cards for iPhone (iOS 18 or newer)</p></div></header>
 <nav><a href="index.html">Home</a><a href="#start">Start</a><a href="#members">Members</a><a href="#design">Design</a><a href="#apple">Apple Wallet</a><a href="#google">Google Wallet</a><a href="#email">Email</a><a href="#send">Sending</a><a href="#help">Problems</a><a href="privacy.html">Privacy</a></nav>
 <main>
 
 <section id="start"><h2>1. First steps</h2>
-<p>Club Wallet has five tabs: <b>Members</b>, <b>Design</b>, <b>Wallets</b>, <b>Email</b> and <b>Settings</b>.</p>
+<p>The app (shown as <b>Club Wallet</b> on your home screen) has five tabs: <b>Members</b>, <b>Design</b>, <b>Wallets</b>, <b>Email</b> and <b>Settings</b>.</p>
 <ol><li>Want to look around first? <b>Settings → Load sample club</b> fills the app with a made-up club. It replaces your data, so do it before setting up your own club.</li>
 <li>Import your member list (section 2).</li>
 <li>Design the card (section 3).</li>
 <li>Set up Apple Wallet, Google Wallet and email – once (sections 4–6). You can switch either wallet off if you don't need it.</li>
 <li>Make and send the cards (section 7).</li></ol>
-<div class="note">Already using Club Wallet Cards on a computer (Ubuntu)? Choose <b>File → Export for iPhone app…</b> there, send the <code>.clubwallet</code> file to your iPhone, then tap it in the Files app (or <b>Settings → Import from Ubuntu app</b>). Everything – settings, keys, logo, background, members and photos – is copied in one go.</div>
+<div class="note">Have a <code>.clubwallet</code> setup file (a complete setup exported on a computer)? Tap it in the Files app, or use <b>Settings → Import setup file</b>. Settings, certificates, keys, pictures, members and photos are copied in one go.</div>
 </section>
 
 <section id="members"><h2>2. Members</h2>
@@ -42,11 +42,9 @@
 
 <section id="apple"><h2>4. Apple Wallet (one-time setup)</h2>
 <p>Apple only accepts passes signed with the club's own certificate. You need an <a href="https://developer.apple.com/programs/">Apple Developer Program</a> membership.</p>
-<h3>Easiest: with the computer app</h3>
-<p>Club Wallet Cards for Ubuntu has an automatic setup (<code>club-wallet-cards-apple-setup</code>) that creates everything. Then use <b>Export for iPhone app…</b> to bring it to your iPhone.</p>
-<h3>By hand</h3>
+<h3>Steps</h3>
 <ol><li>On <a href="https://developer.apple.com/account/resources/identifiers/list/passTypeId">developer.apple.com → Identifiers → Pass Type IDs</a>, create an ID like <code>pass.com.yourclub.member</code>.</li>
-<li>Create its certificate there. You need a certificate request (CSR); the Ubuntu app's <i>Create key + CSR</i> makes one, or Keychain Access on a Mac. Download <code>pass.cer</code>.</li>
+<li>Create its certificate there. It needs a certificate request (CSR): use Keychain Access on a Mac (<i>Certificate Assistant → Request a Certificate…</i>), or on any computer: <code>openssl req -new -newkey rsa:2048 -nodes -keyout pass_private_key.pem -out pass.csr -subj "/CN=Pass key"</code>. Download <code>pass.cer</code>.</li>
 <li>Download Apple's intermediate certificate <a href="https://www.apple.com/certificateauthority/AppleWWDRCAG4.cer">AppleWWDRCAG4.cer</a>.</li>
 <li>In the app: <b>Wallets → Certificate</b>. Choose <i>.cer + .pem key</i> and import <code>pass.cer</code> and the private key, or choose <i>.p12 file</i>, import it and type its password. Also import the WWDR certificate.</li>
 <li>Tap <b>Check certificate</b>. The Pass Type ID and Team ID are filled in for you.</li></ol>
@@ -55,7 +53,7 @@
 
 <section id="google"><h2>5. Google Wallet (one-time setup, free)</h2>
 <ol><li>In the <a href="https://pay.google.com/business/console">Google Pay &amp; Wallet Console</a>, open <i>Google Wallet API</i> and create an issuer account.</li>
-<li>In <a href="https://console.cloud.google.com/">Google Cloud</a>, create a project, enable the <i>Google Wallet API</i> and create a <i>service account</i> with a JSON key. The Ubuntu app's <code>club-wallet-cards-google-setup</code> does this for you.</li>
+<li>In <a href="https://console.cloud.google.com/">Google Cloud</a>, create a project, enable the <i>Google Wallet API</i> and create a <i>service account</i> with a JSON key.</li>
 <li>In the Wallet Console → <i>Users</i>, invite the service account's email address as <i>Developer</i>.</li>
 <li>In the app: <b>Wallets → Service account key</b> → import the JSON file, then <b>Find my Issuer ID</b> and <b>Test connection</b>.</li></ol>
 <p>New issuer accounts start in demo mode: passes show "[TEST ONLY]" and only test users can save them. Request publishing access in the Wallet Console before sending to everyone. Google Wallet cards can only be saved on Android phones. To show a picture on the Google card, put a public https link to it in <b>Banner URL</b> (and <b>Logo URL</b>).</p>

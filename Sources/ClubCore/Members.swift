@@ -26,7 +26,7 @@ public struct Member: Identifiable, Hashable, Codable {
         email.range(of: #"^[^@\s]+@[^@\s]+\.[^@\s]+$"#, options: .regularExpression) != nil
     }
 
-    /// Folder/file-name friendly id, e.g. "1_Surbatovic_Bojan".
+    /// Folder/file-name friendly id, e.g. "1_Johnson_John".
     public var slug: String {
         let s = TextUtil.slugPart("\(reg)_\(surname)_\(name)")
         return s.isEmpty ? "row\(row)" : s

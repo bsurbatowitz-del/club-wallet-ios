@@ -532,7 +532,7 @@ final class Store: ObservableObject {
             revision += 1
             pendingTransfer = nil
             show("Imported ✓", "Settings, \(b.files.count) files, \(b.photos.count) photos and \(members.count) members " +
-                 "were imported from the Ubuntu app.")
+                 "were imported.")
         } catch BundleError.needsPassword {
             pendingTransfer = data
         } catch BundleError.wrongPassword {

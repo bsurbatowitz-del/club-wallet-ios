@@ -27,7 +27,7 @@ You need the paid Apple Developer account (the same one used for Wallet passes).
    → Identifiers → **+** → *App IDs* → *App*.
    Description `Club Wallet`, Bundle ID **Explicit**, e.g. `com.yourclub.clubwallet`. No capabilities needed → Register.
 2. **Create the app record** in [App Store Connect](https://appstoreconnect.apple.com/apps) → **+** → *New App*:
-   platform iOS, a name (must be unique on the App Store, e.g. `Triatlon Klub Budva Cards`),
+   platform iOS, a name (must be unique on the App Store, e.g. `Sports Club Wallet Cards`),
    language, the Bundle ID from step 1, SKU `clubwallet`. It stays private – TestFlight only.
 3. **Make an API key for GitHub**: App Store Connect → *Users and Access* → *Integrations* →
    *App Store Connect API* → *Team Keys* → **+**. Name `GitHub`, access **Admin**

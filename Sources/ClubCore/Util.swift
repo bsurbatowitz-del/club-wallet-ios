@@ -2,7 +2,7 @@ import Foundation
 
 /// Text helpers shared by member matching, file names and templates.
 public enum TextUtil {
-    /// Fold accents and special letters to plain ASCII ("Šurbatović" -> "Surbatovic").
+    /// Fold accents and special letters to plain ASCII ("Đorđević" -> "Djordjevic").
     public static func ascii(_ s: String) -> String {
         var t = s
         let table: [(String, String)] = [("đ", "dj"), ("Đ", "Dj"), ("ß", "ss"), ("ø", "o"), ("Ø", "O"), ("ł", "l"), ("Ł", "L")]

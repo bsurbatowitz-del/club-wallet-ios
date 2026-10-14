@@ -11,7 +11,7 @@ Android: tap the "Add to Google Wallet" button below.
 Your card shows a QR code with your registration number ({reg}), name and email.
 The card image is also attached in case you want to print it.
 
-See you at training!
+See you soon!
 {club}
 """
 
@@ -19,9 +19,9 @@ See you at training!
 /// configuration files can be imported directly. Unknown keys are ignored.
 public struct AppConfig: Codable, Equatable {
     // card design
-    public var clubName = "Triathlon Club"
+    public var clubName = ""
     public var cardTitle = "Membership Card"
-    public var season = "2026"
+    public var season = ""
     public var expirationDate = ""
     public var bgColor = "#0B3C5D"
     public var fgColor = "#FFFFFF"
@@ -55,7 +55,7 @@ public struct AppConfig: Codable, Equatable {
     public var smtpSecurity = "SSL"           // SSL | None
     public var smtpUser = ""
     public var smtpPassword = ""
-    public var fromName = "Triathlon Club"
+    public var fromName = ""
     public var fromEmail = ""
     public var replyTo = ""
     public var emailSubject = "Your {club} membership card"

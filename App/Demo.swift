@@ -24,14 +24,14 @@ enum Demo {
         guard isOn || force else { return }
         store.resetAll()
         var c = AppConfig()
-        c.clubName = "Triatlon Klub Budva"; c.season = "2026"; c.applePassTypeId = "pass.me.tkbudva.member"
+        c.clubName = "Your Sports Club"; c.season = "2026"; c.applePassTypeId = "pass.com.example.club"
         c.appleTeamId = "ABCDE12345"; c.googleIssuerId = "3388000000012345678"; c.smtpUser = "club@example.com"
-        c.fromEmail = "club@example.com"; c.fromName = "Triatlon Klub Budva"
+        c.fromEmail = "club@example.com"; c.fromName = "Your Sports Club"
         store.config = c
-        let csv = "Reg number;Name;Surname;email;Blood type;Rh\n1;Bojan;Šurbatović;bojan@example.com;A;+\n" +
-                  "2;Ana;Đokić;ana@example.com;0;-\n3;Marko;Marković;marko@example.com;AB;+\n" +
-                  "4;Ivana;Horvat;ivana@example.com;B;+\n5;Luka;Petrović;luka@example.com;0;+\n" +
-                  "6;Mia;Kovač;mia@example.com;A;-\n7;Nikola;Jovanović;nikola@example.com;;\n8;Sara;Babić;sara@example.com;AB;-\n"
+        let csv = "Reg number;Name;Surname;email;Blood type;Rh\n1;John;Johnson;john@example.com;A;+\n" +
+                  "2;Emma;Smith;emma@example.com;0;-\n3;Liam;Brown;liam@example.com;AB;+\n" +
+                  "4;Olivia;Davis;olivia@example.com;B;+\n5;Noah;Wilson;noah@example.com;0;+\n" +
+                  "6;Ava;Taylor;ava@example.com;A;-\n7;Lucas;Miller;lucas@example.com;;\n8;Mia;Anderson;mia@example.com;AB;-\n"
         store.importMembers(data: Data(csv.utf8), fileName: "members.csv")
         let bg = picture(CGSize(width: 1600, height: 900)) { ctx in
             let colors = [UIColor(red: 1, green: 0.6, blue: 0.3, alpha: 1).cgColor, UIColor(red: 0.05, green: 0.3, blue: 0.55, alpha: 1).cgColor]
@@ -75,7 +75,7 @@ enum Demo {
             wave.move(to: CGPoint(x: 70, y: 250))
             wave.addCurve(to: CGPoint(x: 330, y: 250), controlPoint1: CGPoint(x: 150, y: 170), controlPoint2: CGPoint(x: 250, y: 330))
             wave.stroke()
-            let t = "TKB" as NSString
+            let t = "YSC" as NSString
             let f = UIFont.systemFont(ofSize: 110, weight: .heavy)
             let sz = t.size(withAttributes: [.font: f])
             t.draw(at: CGPoint(x: 200 - sz.width / 2, y: 70), withAttributes: [.font: f, .foregroundColor: UIColor.white])
